@@ -28,6 +28,7 @@ const CONFIG = {
   WEATHER_API_KEY: '',
   WEATHER_LOCATION: 'Meerut',
   WEATHER_UNITS: 'metric',
+  THEME: 'system',
   LINKS: [
     { label: 'GitHub',    url: 'https://github.com' },
     { label: 'Gmail',     url: 'https://mail.google.com' },
@@ -102,6 +103,41 @@ function renderLinks() {
 }
 
 
+/* ── Weather icon ────────────────────────────────── */
+function weatherIconName(id) {
+  if (id === 800)                      return 'clear';
+  if (id === 801)                      return 'partly-cloudy';
+  if (id >= 802  && id <= 804)         return 'cloudy';
+  if (id >= 200  && id <= 232)         return 'thunderstorm';
+  if (id >= 300  && id <= 321)         return 'drizzle';
+  if (id >= 500  && id <= 531)         return 'rain';
+  if (id >= 600  && id <= 622)         return 'snow';
+  if (id >= 700  && id <= 781)         return 'fog';
+  return 'cloudy';
+}
+
+const _iconCache = {};
+
+async function fetchIcon(name) {
+  if (_iconCache[name] !== undefined) return _iconCache[name];
+  try {
+    const res = await fetch(`icons/${name}.svg`);
+    if (!res.ok) throw new Error();
+    const text = await res.text();
+    const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+    const svg = doc.querySelector('svg');
+    if (svg) {
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+      svg.classList.add('w-icon-svg');
+      _iconCache[name] = svg.outerHTML;
+      return svg.outerHTML;
+    }
+  } catch {}
+  _iconCache[name] = '';
+  return '';
+}
+
 /* ── Weather ─────────────────────────────────────── */
 function renderWeather(d) {
   const sym  = CONFIG.WEATHER_UNITS === 'imperial' ? '°F' : '°C';
@@ -112,7 +148,10 @@ function renderWeather(d) {
   const city  = d.name;
 
   document.getElementById('weather-body').innerHTML = `
-    <div class="w-temp">${temp}<span class="w-unit">${sym}</span></div>
+    <div class="w-temp-row">
+      <div class="w-temp">${temp}<span class="w-unit">${sym}</span></div>
+      <div id="w-icon-container"></div>
+    </div>
     <div class="w-desc">${desc}</div>
     <div class="stat-rows">
       <div class="stat"><span class="label">Feels like</span><span class="stat-val">${feels}${sym}</span></div>
@@ -120,6 +159,11 @@ function renderWeather(d) {
       <div class="stat"><span class="label">Location</span><span class="stat-val">${city}</span></div>
     </div>
   `;
+
+  fetchIcon(weatherIconName(d.weather[0].id)).then(svg => {
+    const container = document.getElementById('w-icon-container');
+    if (container) container.innerHTML = svg;
+  });
 }
 
 function renderWeatherMsg(html) {
@@ -166,6 +210,52 @@ async function loadWeather() {
   }
 }
 
+
+/* ── Theme ───────────────────────────────────────── */
+const THEME_ICONS = {
+  system: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="3" width="20" height="14" rx="2"/>
+    <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+  </svg>`,
+  light: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4"/>
+    <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+    <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+    <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/>
+    <line x1="19.07" y1="4.93" x2="17.66" y2="6.34"/><line x1="6.34" y1="17.66" x2="4.93" y2="19.07"/>
+  </svg>`,
+  dark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>`,
+};
+
+const THEME_CYCLE = ['system', 'light', 'dark'];
+
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  const btn = document.getElementById('theme-btn');
+  if (btn) {
+    btn.innerHTML = THEME_ICONS[theme] || THEME_ICONS.system;
+    btn.setAttribute('aria-label', `Theme: ${theme}`);
+  }
+}
+
+function initTheme() {
+  applyTheme(CONFIG.THEME);
+  document.getElementById('theme-btn').addEventListener('click', async () => {
+    const next = THEME_CYCLE[(THEME_CYCLE.indexOf(CONFIG.THEME) + 1) % THEME_CYCLE.length];
+    CONFIG.THEME = next;
+    applyTheme(next);
+    const saved = await storage.load();
+    await storage.save({ ...saved, theme: next });
+  });
+}
 
 /* ── Settings ────────────────────────────────────── */
 function esc(s) {
@@ -297,11 +387,13 @@ async function init() {
   if (saved.weatherLocation !== undefined) CONFIG.WEATHER_LOCATION = saved.weatherLocation;
   if (saved.weatherUnits    !== undefined) CONFIG.WEATHER_UNITS    = saved.weatherUnits;
   if (saved.links           !== undefined) CONFIG.LINKS            = saved.links;
+  if (saved.theme           !== undefined) CONFIG.THEME            = saved.theme;
 
   tick();
   setInterval(tick, 1000);
   renderLinks();
   loadWeather();
+  initTheme();
   initSettings();
   initKeyboardShortcuts();
 }

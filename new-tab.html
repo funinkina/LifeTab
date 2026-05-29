@@ -31,7 +31,7 @@
 
     /* ── Tokens · light ───────────────────────────────── */
     @media (prefers-color-scheme: light) {
-      :root {
+      :root:not([data-theme="dark"]) {
         --black:          #F5F5F5;
         --surface:        #FFFFFF;
         --surface-raised: #F0F0F0;
@@ -42,6 +42,18 @@
         --text-primary:   #1A1A1A;
         --text-display:   #000000;
       }
+    }
+
+    :root[data-theme="light"] {
+      --black:          #F5F5F5;
+      --surface:        #FFFFFF;
+      --surface-raised: #F0F0F0;
+      --border:         #E8E8E8;
+      --border-visible: #CCCCCC;
+      --text-disabled:  #999999;
+      --text-secondary: #666666;
+      --text-primary:   #1A1A1A;
+      --text-display:   #000000;
     }
 
     /* ── Reset ────────────────────────────────────────── */
@@ -138,6 +150,19 @@
     .panel > .label { margin-bottom: var(--space-lg); display: block; }
 
     /* ── Weather ──────────────────────────────────────── */
+    .w-temp-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .w-icon-svg {
+      width: 32px;
+      height: 32px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
     .w-temp {
       font-family: 'Space Mono', monospace;
       font-size: 48px;
@@ -248,10 +273,10 @@
     @keyframes fadeIn { to { opacity: 1; } }
 
     /* ── Settings button ──────────────────────────── */
-    .settings-btn {
+    .settings-btn,
+    .theme-btn {
       position: fixed;
       bottom: clamp(20px, 3vw, 48px);
-      left: clamp(20px, 3vw, 48px);
       background: none;
       border: none;
       cursor: pointer;
@@ -265,8 +290,12 @@
       transition: color 0.18s;
       z-index: 50;
     }
-    .settings-btn:hover { color: var(--text-secondary); }
-    .settings-btn svg { display: block; width: 100%; height: 100%; }
+    .settings-btn { left: clamp(20px, 3vw, 48px); }
+    .theme-btn    { left: calc(clamp(20px, 3vw, 48px) + 32px); }
+    .settings-btn:hover,
+    .theme-btn:hover { color: var(--text-secondary); }
+    .settings-btn svg,
+    .theme-btn svg { display: block; width: 100%; height: 100%; }
 
     /* ── Settings overlay ─────────────────────────── */
     .settings-overlay {
@@ -463,6 +492,9 @@
     <line x1="17" y1="16" x2="23" y2="16"/>
   </svg>
 </button>
+
+<!-- Theme toggle button (bottom-left, fixed, next to settings) -->
+<button class="theme-btn" id="theme-btn" aria-label="Toggle theme"></button>
 
 <!-- Settings overlay -->
 <div class="settings-overlay" id="settings-overlay">
