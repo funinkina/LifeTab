@@ -68,6 +68,9 @@ setInterval(tick, 1000);
 const linksGrid = document.getElementById('links-grid');
 
 CONFIG.LINKS.forEach(({ label, url }, i) => {
+  let domain = '';
+  try { domain = new URL(url).hostname; } catch {}
+
   const a = document.createElement('a');
   a.href = url;
   a.className = 'link';
@@ -75,6 +78,12 @@ CONFIG.LINKS.forEach(({ label, url }, i) => {
   const idx = document.createElement('span');
   idx.className = 'link-idx';
   idx.textContent = pad(i + 1);
+
+  const img = document.createElement('img');
+  img.src = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+  img.className = 'link-favicon';
+  img.alt = '';
+  img.onerror = () => img.style.display = 'none';
 
   const lbl = document.createElement('span');
   lbl.className = 'link-name';
@@ -85,6 +94,7 @@ CONFIG.LINKS.forEach(({ label, url }, i) => {
   arrow.textContent = '→';
 
   a.appendChild(idx);
+  a.appendChild(img);
   a.appendChild(lbl);
   a.appendChild(arrow);
   linksGrid.appendChild(a);
