@@ -178,6 +178,17 @@ function esc(s) {
 
 let _settingsLinks = [];
 
+/* ── Keyboard shortcuts ──────────────────────────── */
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('settings-overlay').classList.contains('open')) return;
+    const n = parseInt(e.key);
+    if (n >= 1 && n <= 9 && CONFIG.LINKS[n - 1]) {
+      window.location.href = CONFIG.LINKS[n - 1].url;
+    }
+  });
+}
+
 function initSettings() {
   document.getElementById('settings-btn').addEventListener('click', openSettings);
   document.getElementById('settings-close').addEventListener('click', closeSettings);
@@ -292,6 +303,7 @@ async function init() {
   renderLinks();
   loadWeather();
   initSettings();
+  initKeyboardShortcuts();
 }
 
 init();
