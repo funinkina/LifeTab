@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Tokens ───────────────────────────────────────── */
+    :root {
+      --bg:           #F0EFE9;
+      --bg-card:      #FAFAF7;
+      --border:       rgba(0, 0, 0, 0.07);
+      --text-primary: #1C1B18;
+      --text-sub:     #6B6A64;
+      --text-muted:   #AEADA6;
+      --accent:       #D96C35;
+      --accent-glow:  rgba(217, 108, 53, 0.13);
+      --shadow:       0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.05);
+      --radius:       18px;
+      --radius-sm:    11px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:           #111110;
+        --bg-card:      #191918;
+        --border:       rgba(255, 255, 255, 0.07);
+        --text-primary: #EEEEE8;
+        --text-sub:     #88887E;
+        --text-muted:   #4E4E48;
+        --accent:       #EF8144;
+        --accent-glow:  rgba(239, 129, 68, 0.14);
+        --shadow:       0 1px 2px rgba(0,0,0,0.4), 0 4px 24px rgba(0,0,0,0.3);
+      }
+    }
+
+    /* ── Reset ────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Syne', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 32px;
+      transition: background 0.3s;
+    }
+
+    /* ── Layout ───────────────────────────────────────── */
+    .container {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Clock ────────────────────────────────────────── */
+    .clock-section {
+      text-align: center;
+      padding: 12px 0 20px;
+      opacity: 0;
+      animation: riseIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+    }
+
+    .greeting {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .time {
+      font-family: 'Azeret Mono', monospace;
+      font-size: clamp(60px, 10.5vw, 104px);
+      font-weight: 300;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .time .sep { color: var(--text-muted); }
+    .time .sec { color: var(--accent); }
+
+    .dateline {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text-sub);
+      letter-spacing: 0.015em;
+    }
+
+    /* ── Bottom row ───────────────────────────────────── */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      opacity: 0;
+      animation: riseIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.18s forwards;
+    }
+
+    @media (max-width: 620px) {
+      .bottom-row { grid-template-columns: 1fr; }
+    }
+
+    /* ── Card base ────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    /* ── Weather ──────────────────────────────────────── */
+    .weather-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 190px;
+    }
+
+    .w-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+
+    .w-icon { font-size: 42px; line-height: 1; }
+
+    .w-temp {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 44px;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .w-unit { font-size: 22px; color: var(--text-sub); }
+
+    .w-desc {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-bottom: 3px;
+    }
+
+    .w-city {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+
+    .w-meta {
+      display: flex;
+      gap: 20px;
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .w-meta-item { display: flex; flex-direction: column; gap: 2px; }
+
+    .w-meta-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .w-meta-val {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    .w-placeholder {
+      color: var(--text-muted);
+      font-size: 12.5px;
+      line-height: 1.65;
+    }
+
+    .w-placeholder a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent-glow);
+    }
+
+    .w-placeholder code {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 11px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* ── Quick links ──────────────────────────────────── */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 8px;
+    }
+
+    .link-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 6px 9px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      color: var(--text-sub);
+      border: 1px solid transparent;
+      transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .link-tile:hover {
+      background: var(--accent-glow);
+      border-color: rgba(217, 108, 53, 0.18);
+      color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .link-favicon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .link-favicon img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .link-name {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.01em;
+      max-width: 68px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Animations ───────────────────────────────────── */
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ── Clock ────────────────────────────────────── -->
+  <div class="clock-section">
+    <div class="greeting" id="greeting"></div>
+    <div class="time" id="time-display"></div>
+    <div class="dateline" id="dateline"></div>
+  </div>
+
+  <!-- ── Bottom row ───────────────────────────────── -->
+  <div class="bottom-row">
+
+    <!-- Weather -->
+    <div class="card weather-card" id="weather-card">
+      <div class="card-label">Weather</div>
+      <div id="weather-body"></div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="card">
+      <div class="card-label">Quick links</div>
+      <div class="links-grid" id="links-grid"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="newtab.js"></script>
+
+</body>
+</html>

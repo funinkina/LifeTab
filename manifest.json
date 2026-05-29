@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Custom New Tab",
+  "version": "1.0.0",
+  "description": "Personalised new tab page with clock, weather and quick links.",
+  "chrome_url_overrides": {
+    "newtab": "new-tab.html"
+  },
+  "host_permissions": [
+    "https://api.openweathermap.org/*",
+    "https://icons.duckduckgo.com/*"
+  ]
+}
