@@ -89,26 +89,48 @@
       align-items: center;
     }
 
-    .live {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      color: var(--text-disabled);
-    }
-
-    .live-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    /* ── Clock (primary layer) ────────────────────────── */
-    .clock {
+    /* ── Clock (primary layer) + fidget row ───────────── */
+    .clock-row {
       margin-top: var(--space-2xl);
+      display: flex;
+      align-items: stretch;
+      gap: var(--space-3xl);
+    }
+
+    .clock {
+      flex-shrink: 0;
       opacity: 0;
       animation: fadeIn 0.5s cubic-bezier(0.25,0.1,0.25,1) 0.05s forwards;
     }
+
+    /* ── Fidget grid (the one expressive moment · dot-matrix) ── */
+    .fidget {
+      flex: 1;
+      min-width: 0;
+      align-self: stretch;
+      display: grid;
+      gap: 1px;
+      background: var(--border-visible);
+      border: 1px solid var(--border-visible);
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 0.6s cubic-bezier(0.25,0.1,0.25,1) 0.1s forwards;
+    }
+    .fidget-cell {
+      background: var(--black);
+      transition: background-color 0.6s ease-out;
+    }
+    .fidget-cell.lit {
+      background: hsl(var(--h, 0) 90% 55%);  /* L=55% reads on both black + off-white */
+      transition: none;
+    }
+    .fidget-cell.idle { animation: idleBlink 1.8s ease-out; }
+    @keyframes idleBlink {
+      0%   { background: var(--black); }
+      35%  { background: var(--text-disabled); }
+      100% { background: var(--black); }
+    }
+    @media (max-width: 640px) { .fidget { display: none; } }
 
     .greeting { margin-bottom: var(--space-md); }
 
@@ -136,7 +158,7 @@
     /* ── Search bar ───────────────────────────────────── */
     .search {
       margin-top: auto;
-      padding-top: var(--space-3xl);
+      padding-top: var(--space-2xl);
       opacity: 0;
       animation: fadeIn 0.5s cubic-bezier(0.25,0.1,0.25,1) 0.12s forwards;
     }
@@ -594,17 +616,17 @@
     <!-- ── Top bar (tertiary) ─────────────────────────── -->
     <div class="topbar">
       <span class="label">NEW&nbsp;TAB</span>
-      <span class="live label">
-        <span class="live-dot"></span>LIVE
-      </span>
     </div>
 
-    <!-- ── Clock (primary) ────────────────────────────── -->
-    <section class="clock">
-      <div class="greeting label" id="greeting"></div>
-      <div class="time" id="time-display"></div>
-      <div class="dateline label" id="dateline"></div>
-    </section>
+    <!-- ── Clock (primary) + fidget grid ──────────────── -->
+    <div class="clock-row">
+      <section class="clock">
+        <div class="greeting label" id="greeting"></div>
+        <div class="time" id="time-display"></div>
+        <div class="dateline label" id="dateline"></div>
+      </section>
+      <div class="fidget" id="fidget" aria-hidden="true"></div>
+    </div>
 
     <!-- ── Search bar ────────────────────────────────── -->
     <section class="search" id="search-section">

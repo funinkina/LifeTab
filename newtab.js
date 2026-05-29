@@ -31,36 +31,36 @@ const CONFIG = {
   THEME: 'system',
   SEARCH_ENGINE: 'google',
   LINKS: [
-    { label: 'GitHub',    url: 'https://github.com' },
-    { label: 'Gmail',     url: 'https://mail.google.com' },
-    { label: 'YouTube',   url: 'https://youtube.com' },
-    { label: 'Reddit',    url: 'https://reddit.com' },
-    { label: 'Maps',      url: 'https://maps.google.com' },
+    { label: 'GitHub', url: 'https://github.com' },
+    { label: 'Gmail', url: 'https://mail.google.com' },
+    { label: 'YouTube', url: 'https://youtube.com' },
+    { label: 'Reddit', url: 'https://reddit.com' },
+    { label: 'Maps', url: 'https://maps.google.com' },
     { label: 'Wikipedia', url: 'https://wikipedia.org' },
-    { label: 'HN',        url: 'https://news.ycombinator.com' },
-    { label: 'Claude',    url: 'https://claude.ai' },
+    { label: 'HN', url: 'https://news.ycombinator.com' },
+    { label: 'Claude', url: 'https://claude.ai' },
   ],
 };
 
 /* ── Search engines ──────────────────────────────── */
 const SEARCH_ENGINES = [
-  { key: 'google', label: 'GOOGLE', url: 'https://www.google.com/search?q=',  domain: 'google.com' },
-  { key: 'ddg',    label: 'DDG',    url: 'https://duckduckgo.com/?q=',         domain: 'duckduckgo.com' },
-  { key: 'kagi',   label: 'KAGI',   url: 'https://kagi.com/search?q=',         domain: 'kagi.com' },
-  { key: 'brave',  label: 'BRAVE',  url: 'https://search.brave.com/search?q=', domain: 'search.brave.com' },
-  { key: 'bing',   label: 'BING',   url: 'https://www.bing.com/search?q=',     domain: 'bing.com' },
+  { key: 'google', label: 'GOOGLE', url: 'https://www.google.com/search?q=', domain: 'google.com' },
+  { key: 'ddg', label: 'DDG', url: 'https://duckduckgo.com/?q=', domain: 'duckduckgo.com' },
+  { key: 'kagi', label: 'KAGI', url: 'https://kagi.com/search?q=', domain: 'kagi.com' },
+  { key: 'brave', label: 'BRAVE', url: 'https://search.brave.com/search?q=', domain: 'search.brave.com' },
+  { key: 'bing', label: 'BING', url: 'https://www.bing.com/search?q=', domain: 'bing.com' },
 ];
 
 /* ── Clock ───────────────────────────────────────── */
-const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTHS = ['January','February','March','April','May','June',
-                'July','August','September','October','November','December'];
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
 const pad = n => String(n).padStart(2, '0');
 
 function greet() {
   const h = new Date().getHours();
   const name = CONFIG.NAME ? `, ${CONFIG.NAME}` : '';
-  if (h < 5)  return `Good night${name}`;
+  if (h < 5) return `Good night${name}`;
   if (h < 12) return `Good morning${name}`;
   if (h < 17) return `Good afternoon${name}`;
   if (h < 21) return `Good evening${name}`;
@@ -83,7 +83,7 @@ function renderLinks() {
   linksGrid.innerHTML = '';
   CONFIG.LINKS.forEach(({ label, url }, i) => {
     let domain = '';
-    try { domain = new URL(url).hostname; } catch {}
+    try { domain = new URL(url).hostname; } catch { }
 
     const a = document.createElement('a');
     a.href = url;
@@ -115,14 +115,14 @@ function renderLinks() {
 
 /* ── Weather icon ────────────────────────────────── */
 function weatherIconName(id) {
-  if (id === 800)                      return 'clear';
-  if (id === 801)                      return 'partly-cloudy';
-  if (id >= 802  && id <= 804)         return 'cloudy';
-  if (id >= 200  && id <= 232)         return 'thunderstorm';
-  if (id >= 300  && id <= 321)         return 'drizzle';
-  if (id >= 500  && id <= 531)         return 'rain';
-  if (id >= 600  && id <= 622)         return 'snow';
-  if (id >= 700  && id <= 781)         return 'fog';
+  if (id === 800) return 'clear';
+  if (id === 801) return 'partly-cloudy';
+  if (id >= 802 && id <= 804) return 'cloudy';
+  if (id >= 200 && id <= 232) return 'thunderstorm';
+  if (id >= 300 && id <= 321) return 'drizzle';
+  if (id >= 500 && id <= 531) return 'rain';
+  if (id >= 600 && id <= 622) return 'snow';
+  if (id >= 700 && id <= 781) return 'fog';
   return 'cloudy';
 }
 
@@ -143,19 +143,19 @@ async function fetchIcon(name) {
       _iconCache[name] = svg.outerHTML;
       return svg.outerHTML;
     }
-  } catch {}
+  } catch { }
   _iconCache[name] = '';
   return '';
 }
 
 /* ── Weather ─────────────────────────────────────── */
 function renderWeather(d) {
-  const sym  = CONFIG.WEATHER_UNITS === 'imperial' ? '°F' : '°C';
-  const temp  = Math.round(d.main.temp);
+  const sym = CONFIG.WEATHER_UNITS === 'imperial' ? '°F' : '°C';
+  const temp = Math.round(d.main.temp);
   const feels = Math.round(d.main.feels_like);
-  const hum   = d.main.humidity;
-  const desc  = d.weather[0].description.replace(/\b\w/g, c => c.toUpperCase());
-  const city  = d.name;
+  const hum = d.main.humidity;
+  const desc = d.weather[0].description.replace(/\b\w/g, c => c.toUpperCase());
+  const city = d.name;
 
   document.getElementById('weather-body').innerHTML = `
     <div class="w-temp-row">
@@ -198,7 +198,7 @@ async function loadWeather() {
   }
 
   const base = `https://api.openweathermap.org/data/2.5/weather`;
-  const qs   = `&appid=${key}&units=${CONFIG.WEATHER_UNITS}`;
+  const qs = `&appid=${key}&units=${CONFIG.WEATHER_UNITS}`;
 
   try {
     let data;
@@ -277,9 +277,9 @@ function faviconUrl(domain) {
 }
 
 function renderSearchEngine() {
-  const engine  = getCurrentEngine();
+  const engine = getCurrentEngine();
   const favicon = document.getElementById('search-engine-favicon');
-  const label   = document.getElementById('search-engine-label');
+  const label = document.getElementById('search-engine-label');
   if (favicon) {
     favicon.src = faviconUrl(engine.domain);
     favicon.style.display = '';
@@ -400,11 +400,11 @@ function initSettings() {
 }
 
 function openSettings() {
-  document.getElementById('s-name').value              = CONFIG.NAME;
-  document.getElementById('s-weather-key').value       = CONFIG.WEATHER_API_KEY;
-  document.getElementById('s-weather-loc').value       = CONFIG.WEATHER_LOCATION;
-  document.getElementById('s-weather-units').value     = CONFIG.WEATHER_UNITS;
-  document.getElementById('s-search-engine').value     = CONFIG.SEARCH_ENGINE;
+  document.getElementById('s-name').value = CONFIG.NAME;
+  document.getElementById('s-weather-key').value = CONFIG.WEATHER_API_KEY;
+  document.getElementById('s-weather-loc').value = CONFIG.WEATHER_LOCATION;
+  document.getElementById('s-weather-units').value = CONFIG.WEATHER_UNITS;
+  document.getElementById('s-search-engine').value = CONFIG.SEARCH_ENGINE;
   _settingsLinks = CONFIG.LINKS.map(l => ({ ...l }));
   renderSettingsLinks();
   document.getElementById('settings-overlay').classList.add('open');
@@ -455,7 +455,7 @@ function syncSettingsLinks() {
   document.querySelectorAll('#s-links-list .s-link-row').forEach((row, i) => {
     if (_settingsLinks[i]) {
       _settingsLinks[i].label = row.querySelector('.s-link-label').value;
-      _settingsLinks[i].url   = row.querySelector('.s-link-url').value;
+      _settingsLinks[i].url = row.querySelector('.s-link-url').value;
     }
   });
 }
@@ -475,28 +475,134 @@ async function saveSettings() {
   btn.disabled = true;
 
   await storage.save({
-    name:            document.getElementById('s-name').value.trim(),
-    weatherApiKey:   document.getElementById('s-weather-key').value.trim(),
+    name: document.getElementById('s-name').value.trim(),
+    weatherApiKey: document.getElementById('s-weather-key').value.trim(),
     weatherLocation: document.getElementById('s-weather-loc').value.trim(),
-    weatherUnits:    document.getElementById('s-weather-units').value,
-    searchEngine:    document.getElementById('s-search-engine').value,
-    links:           _settingsLinks.filter(l => l.label.trim() || l.url.trim()),
+    weatherUnits: document.getElementById('s-weather-units').value,
+    searchEngine: document.getElementById('s-search-engine').value,
+    links: _settingsLinks.filter(l => l.label.trim() || l.url.trim()),
   });
 
   location.reload();
 }
 
 
+/* ── Fidget grid ─────────────────────────────────── */
+function initFidget() {
+  const grid = document.getElementById('fidget');
+  const clock = document.querySelector('.clock');
+  if (!grid || !clock) return;
+
+  const CELL = 24;       // target px per cell (incl. 1px grid line)
+  const HUE_STEP = 23;   // deg of hue rotation per new cell → rainbow trail
+
+  let cols = 0, rows = 0, cells = [];
+  let hovering = false, raf = 0, pending = null;
+  let hue = Math.random() * 360, lastIdx = -1;
+
+  // pop instantly with hue h, then fade back over the CSS transition → trail
+  function litPop(cell, h) {
+    cell.style.setProperty('--h', h.toFixed(0));
+    cell.classList.remove('idle');
+    cell.classList.add('lit');
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => cell.classList.remove('lit')));
+  }
+
+  function build() {
+    const h = clock.offsetHeight;
+    const w = grid.clientWidth;
+    if (w < 8 || h < 8) return;
+    grid.style.height = h + 'px';
+    cols = Math.max(1, Math.floor((w + 1) / CELL));
+    rows = Math.max(1, Math.floor((h + 1) / CELL));
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < cols * rows; i++) {
+      const c = document.createElement('div');
+      c.className = 'fidget-cell';
+      frag.appendChild(c);
+    }
+    grid.innerHTML = '';
+    grid.appendChild(frag);
+    cells = Array.from(grid.children);
+    lastIdx = -1;
+  }
+
+  function cellAt(clientX, clientY) {
+    const rect = grid.getBoundingClientRect();
+    const x = Math.floor((clientX - rect.left) / (rect.width / cols));
+    const y = Math.floor((clientY - rect.top) / (rect.height / rows));
+    return { x, y };
+  }
+
+  function flush() {
+    raf = 0;
+    if (!pending) return;
+    const { x, y } = pending;
+    pending = null;
+    if (x < 0 || y < 0 || x >= cols || y >= rows) return;
+    const idx = y * cols + x;
+    if (idx === lastIdx) return;          // same cell → don't re-trigger
+    lastIdx = idx;
+    hue = (hue + HUE_STEP) % 360;          // shift hue each new cell → rainbow
+    litPop(cells[idx], hue);
+  }
+
+  grid.addEventListener('mousemove', e => {
+    hovering = true;
+    pending = cellAt(e.clientX, e.clientY);
+    if (!raf) raf = requestAnimationFrame(flush);
+  });
+
+  grid.addEventListener('mouseleave', () => { hovering = false; lastIdx = -1; });
+
+  // Click — colorful ripple expanding outward across the whole grid
+  grid.addEventListener('mousedown', e => {
+    const { x: cx, y: cy } = cellAt(e.clientX, e.clientY);
+    const base = Math.random() * 360;
+    const rings = new Map();
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const d = Math.round(Math.hypot(x - cx, y - cy));
+        if (!rings.has(d)) rings.set(d, []);
+        rings.get(d).push(y * cols + x);
+      }
+    }
+    rings.forEach((idxs, d) => {
+      setTimeout(() => {
+        const h = (base + d * 12) % 360;   // each ring its own hue
+        idxs.forEach(i => litPop(cells[i], h));
+      }, d * 28);
+    });
+  });
+
+  // Ambient idle blink — keeps surface alive (replaces LIVE dot)
+  setInterval(() => {
+    if (hovering || !cells.length) return;
+    const cell = cells[(Math.random() * cells.length) | 0];
+    if (cell.classList.contains('idle')) return;
+    cell.classList.add('idle');
+    cell.addEventListener('animationend', () => cell.classList.remove('idle'), { once: true });
+  }, 700);
+
+  build();
+  document.fonts?.ready.then(build);
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 150); });
+}
+
 /* ── Init ────────────────────────────────────────── */
 async function init() {
   const saved = await storage.load();
-  if (saved.name            !== undefined) CONFIG.NAME             = saved.name;
-  if (saved.weatherApiKey   !== undefined) CONFIG.WEATHER_API_KEY  = saved.weatherApiKey;
+  if (saved.name !== undefined) CONFIG.NAME = saved.name;
+  if (saved.weatherApiKey !== undefined) CONFIG.WEATHER_API_KEY = saved.weatherApiKey;
   if (saved.weatherLocation !== undefined) CONFIG.WEATHER_LOCATION = saved.weatherLocation;
-  if (saved.weatherUnits    !== undefined) CONFIG.WEATHER_UNITS    = saved.weatherUnits;
-  if (saved.searchEngine    !== undefined) CONFIG.SEARCH_ENGINE    = saved.searchEngine;
-  if (saved.links           !== undefined) CONFIG.LINKS            = saved.links;
-  if (saved.theme           !== undefined) CONFIG.THEME            = saved.theme;
+  if (saved.weatherUnits !== undefined) CONFIG.WEATHER_UNITS = saved.weatherUnits;
+  if (saved.searchEngine !== undefined) CONFIG.SEARCH_ENGINE = saved.searchEngine;
+  if (saved.links !== undefined) CONFIG.LINKS = saved.links;
+  if (saved.theme !== undefined) CONFIG.THEME = saved.theme;
 
   tick();
   setInterval(tick, 1000);
@@ -506,6 +612,7 @@ async function init() {
   initSettings();
   initSearch();
   initKeyboardShortcuts();
+  initFidget();
 }
 
 init();
