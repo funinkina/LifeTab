@@ -29,6 +29,7 @@ const CONFIG = {
   WEATHER_LOCATION: 'Meerut',
   WEATHER_UNITS: 'metric',
   THEME: 'system',
+  SEARCH_ENGINE: 'google',
   LINKS: [
     { label: 'GitHub',    url: 'https://github.com' },
     { label: 'Gmail',     url: 'https://mail.google.com' },
@@ -40,6 +41,15 @@ const CONFIG = {
     { label: 'Claude',    url: 'https://claude.ai' },
   ],
 };
+
+/* ── Search engines ──────────────────────────────── */
+const SEARCH_ENGINES = [
+  { key: 'google', label: 'GOOGLE', url: 'https://www.google.com/search?q=',  domain: 'google.com' },
+  { key: 'ddg',    label: 'DDG',    url: 'https://duckduckgo.com/?q=',         domain: 'duckduckgo.com' },
+  { key: 'kagi',   label: 'KAGI',   url: 'https://kagi.com/search?q=',         domain: 'kagi.com' },
+  { key: 'brave',  label: 'BRAVE',  url: 'https://search.brave.com/search?q=', domain: 'search.brave.com' },
+  { key: 'bing',   label: 'BING',   url: 'https://www.bing.com/search?q=',     domain: 'bing.com' },
+];
 
 /* ── Clock ───────────────────────────────────────── */
 const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -257,6 +267,97 @@ function initTheme() {
   });
 }
 
+/* ── Search ──────────────────────────────────────── */
+function getCurrentEngine() {
+  return SEARCH_ENGINES.find(e => e.key === CONFIG.SEARCH_ENGINE) || SEARCH_ENGINES[0];
+}
+
+function faviconUrl(domain) {
+  return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+}
+
+function renderSearchEngine() {
+  const engine  = getCurrentEngine();
+  const favicon = document.getElementById('search-engine-favicon');
+  const label   = document.getElementById('search-engine-label');
+  if (favicon) {
+    favicon.src = faviconUrl(engine.domain);
+    favicon.style.display = '';
+    favicon.onerror = () => { favicon.style.display = 'none'; };
+  }
+  if (label) label.textContent = engine.label;
+}
+
+function renderEngineDropdown() {
+  const dropdown = document.getElementById('search-engine-dropdown');
+  if (!dropdown) return;
+  dropdown.innerHTML = '';
+  SEARCH_ENGINES.forEach(engine => {
+    const btn = document.createElement('button');
+    btn.className = 'search-engine-option' + (engine.key === CONFIG.SEARCH_ENGINE ? ' active' : '');
+    const img = document.createElement('img');
+    img.src = faviconUrl(engine.domain);
+    img.alt = '';
+    img.onerror = () => { img.style.display = 'none'; };
+    const span = document.createElement('span');
+    span.textContent = engine.label;
+    btn.append(img, span);
+    btn.addEventListener('click', () => selectEngine(engine.key));
+    dropdown.appendChild(btn);
+  });
+}
+
+function toggleEngineDropdown() {
+  const dropdown = document.getElementById('search-engine-dropdown');
+  if (dropdown.classList.contains('open')) {
+    closeEngineDropdown();
+  } else {
+    renderEngineDropdown();
+    dropdown.classList.add('open');
+    document.getElementById('search-engine-tag').classList.add('open');
+    document.getElementById('search-engine-tag').setAttribute('aria-expanded', 'true');
+  }
+}
+
+function closeEngineDropdown() {
+  document.getElementById('search-engine-dropdown').classList.remove('open');
+  document.getElementById('search-engine-tag').classList.remove('open');
+  document.getElementById('search-engine-tag').setAttribute('aria-expanded', 'false');
+}
+
+async function selectEngine(key) {
+  CONFIG.SEARCH_ENGINE = key;
+  closeEngineDropdown();
+  renderSearchEngine();
+  const saved = await storage.load();
+  await storage.save({ ...saved, searchEngine: key });
+}
+
+function performSearch() {
+  const input = document.getElementById('search-input');
+  const query = input.value.trim();
+  if (!query) return;
+  window.location.href = getCurrentEngine().url + encodeURIComponent(query);
+}
+
+function initSearch() {
+  document.getElementById('search-engine-tag').addEventListener('click', toggleEngineDropdown);
+  document.getElementById('search-submit').addEventListener('click', performSearch);
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') performSearch();
+    if (e.key === 'Escape') {
+      const dropdown = document.getElementById('search-engine-dropdown');
+      if (dropdown.classList.contains('open')) closeEngineDropdown();
+      else e.target.blur();
+    }
+  });
+  document.addEventListener('click', e => {
+    const selector = document.getElementById('search-engine-selector');
+    if (selector && !selector.contains(e.target)) closeEngineDropdown();
+  });
+  renderSearchEngine();
+}
+
 /* ── Settings ────────────────────────────────────── */
 function esc(s) {
   return String(s)
@@ -272,9 +373,14 @@ let _settingsLinks = [];
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', e => {
     if (document.getElementById('settings-overlay').classList.contains('open')) return;
+    if (document.activeElement === document.getElementById('search-input')) return;
     const n = parseInt(e.key);
     if (n >= 1 && n <= 9 && CONFIG.LINKS[n - 1]) {
       window.location.href = CONFIG.LINKS[n - 1].url;
+    }
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      document.getElementById('search-input').focus();
     }
   });
 }
@@ -294,10 +400,11 @@ function initSettings() {
 }
 
 function openSettings() {
-  document.getElementById('s-name').value           = CONFIG.NAME;
-  document.getElementById('s-weather-key').value    = CONFIG.WEATHER_API_KEY;
-  document.getElementById('s-weather-loc').value    = CONFIG.WEATHER_LOCATION;
-  document.getElementById('s-weather-units').value  = CONFIG.WEATHER_UNITS;
+  document.getElementById('s-name').value              = CONFIG.NAME;
+  document.getElementById('s-weather-key').value       = CONFIG.WEATHER_API_KEY;
+  document.getElementById('s-weather-loc').value       = CONFIG.WEATHER_LOCATION;
+  document.getElementById('s-weather-units').value     = CONFIG.WEATHER_UNITS;
+  document.getElementById('s-search-engine').value     = CONFIG.SEARCH_ENGINE;
   _settingsLinks = CONFIG.LINKS.map(l => ({ ...l }));
   renderSettingsLinks();
   document.getElementById('settings-overlay').classList.add('open');
@@ -372,6 +479,7 @@ async function saveSettings() {
     weatherApiKey:   document.getElementById('s-weather-key').value.trim(),
     weatherLocation: document.getElementById('s-weather-loc').value.trim(),
     weatherUnits:    document.getElementById('s-weather-units').value,
+    searchEngine:    document.getElementById('s-search-engine').value,
     links:           _settingsLinks.filter(l => l.label.trim() || l.url.trim()),
   });
 
@@ -386,6 +494,7 @@ async function init() {
   if (saved.weatherApiKey   !== undefined) CONFIG.WEATHER_API_KEY  = saved.weatherApiKey;
   if (saved.weatherLocation !== undefined) CONFIG.WEATHER_LOCATION = saved.weatherLocation;
   if (saved.weatherUnits    !== undefined) CONFIG.WEATHER_UNITS    = saved.weatherUnits;
+  if (saved.searchEngine    !== undefined) CONFIG.SEARCH_ENGINE    = saved.searchEngine;
   if (saved.links           !== undefined) CONFIG.LINKS            = saved.links;
   if (saved.theme           !== undefined) CONFIG.THEME            = saved.theme;
 
@@ -395,6 +504,7 @@ async function init() {
   loadWeather();
   initTheme();
   initSettings();
+  initSearch();
   initKeyboardShortcuts();
 }
 

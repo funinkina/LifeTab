@@ -12,7 +12,7 @@
     <style>
     /* ── Tokens · dark (default) ──────────────────────── */
     :root {
-      --black:           #000000;
+      --black:           #141414;
       --surface:         #111111;
       --surface-raised:  #1A1A1A;
       --border:          #222222;
@@ -133,10 +133,140 @@
 
     .dateline { margin-top: var(--space-md); }
 
-    /* ── Bottom grid (secondary / tertiary) ───────────── */
-    .grid {
+    /* ── Search bar ───────────────────────────────────── */
+    .search {
       margin-top: auto;
       padding-top: var(--space-3xl);
+      opacity: 0;
+      animation: fadeIn 0.5s cubic-bezier(0.25,0.1,0.25,1) 0.12s forwards;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      border-bottom: 1px solid var(--border-visible);
+      padding-bottom: 10px;
+    }
+
+    .search-engine-selector { position: relative; flex-shrink: 0; }
+
+    .search-engine-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border-visible);
+      background: none;
+      color: var(--text-disabled);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.18s, border-color 0.18s;
+      white-space: nowrap;
+    }
+    .search-engine-tag:hover,
+    .search-engine-tag.open {
+      color: var(--text-display);
+      border-color: var(--text-display);
+    }
+
+    .search-engine-favicon {
+      width: 12px;
+      height: 12px;
+      display: block;
+      filter: grayscale(1);
+      opacity: 0.6;
+      transition: filter 0.18s, opacity 0.18s;
+    }
+    .search-engine-tag:hover .search-engine-favicon,
+    .search-engine-tag.open .search-engine-favicon {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+
+    .search-engine-dropdown {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      background: var(--surface-raised);
+      border: 1px solid var(--border-visible);
+      border-radius: 8px;
+      min-width: 160px;
+      z-index: 20;
+      overflow: hidden;
+    }
+    .search-engine-dropdown.open { display: block; }
+
+    .search-engine-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 10px var(--space-md);
+      cursor: pointer;
+      background: none;
+      border: none;
+      border-left: 2px solid transparent;
+      width: 100%;
+      text-align: left;
+      color: var(--text-secondary);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+    .search-engine-option:hover { color: var(--text-primary); }
+    .search-engine-option.active {
+      color: var(--text-display);
+      border-left-color: var(--accent);
+    }
+    .search-engine-option img {
+      width: 14px;
+      height: 14px;
+      filter: grayscale(1);
+      opacity: 0.6;
+      transition: filter 0.15s, opacity 0.15s;
+    }
+    .search-engine-option:hover img,
+    .search-engine-option.active img { filter: grayscale(0); opacity: 1; }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      outline: none;
+      padding: 4px 0;
+    }
+    .search-input::placeholder {
+      color: var(--text-disabled);
+      letter-spacing: 0.08em;
+    }
+
+    .search-submit {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-disabled);
+      font-family: 'Space Mono', monospace;
+      font-size: 16px;
+      padding: 4px;
+      transition: color 0.18s, transform 0.18s;
+      line-height: 1;
+    }
+    .search-submit:hover { color: var(--accent); transform: translateX(3px); }
+
+    /* ── Bottom grid (secondary / tertiary) ───────────── */
+    .grid {
+      padding-top: var(--space-2xl);
       display: grid;
       grid-template-columns: 280px 1fr;
       gap: var(--space-2xl);
@@ -473,6 +603,24 @@
       <div class="dateline label" id="dateline"></div>
     </section>
 
+    <!-- ── Search bar ────────────────────────────────── -->
+    <section class="search" id="search-section">
+      <div class="search-bar">
+        <div class="search-engine-selector" id="search-engine-selector">
+          <button class="search-engine-tag" id="search-engine-tag"
+            aria-label="Select search engine" aria-expanded="false">
+            <img class="search-engine-favicon" id="search-engine-favicon" src="" alt="">
+            <span id="search-engine-label">GOOGLE</span>
+          </button>
+          <div class="search-engine-dropdown" id="search-engine-dropdown"></div>
+        </div>
+        <input type="text" class="search-input" id="search-input"
+          placeholder="SEARCH…" autocomplete="off" spellcheck="false">
+        <button class="search-submit" id="search-submit"
+          aria-label="Search">→</button>
+      </div>
+    </section>
+
     <!-- ── Bottom grid ────────────────────────────────── -->
     <section class="grid">
 
@@ -545,6 +693,20 @@
               <select id="s-weather-units" class="settings-input">
                 <option value="metric">Metric (°C)</option>
                 <option value="imperial">Imperial (°F)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <span class="label s-section-title">SEARCH</span>
+            <div class="settings-field">
+              <label class="label" for="s-search-engine">Engine</label>
+              <select id="s-search-engine" class="settings-input">
+                <option value="google">Google</option>
+                <option value="ddg">DuckDuckGo</option>
+                <option value="kagi">Kagi</option>
+                <option value="brave">Brave</option>
+                <option value="bing">Bing</option>
               </select>
             </div>
           </div>
