@@ -120,15 +120,12 @@
       background: var(--black);
       transition: background-color 0.6s ease-out;
     }
-    .fidget-cell.lit {
+    .fidget-cell.gol {  /* Game of Life — faint living texture */
+      background: hsl(var(--gh, 200) 55% 52% / 0.18);
+    }
+    .fidget-cell.lit {  /* hover/click — bright, paints over the sim */
       background: hsl(var(--h, 0) 90% 55%);  /* L=55% reads on both black + off-white */
       transition: none;
-    }
-    .fidget-cell.idle { animation: idleBlink 1.8s ease-out; }
-    @keyframes idleBlink {
-      0%   { background: var(--black); }
-      35%  { background: var(--text-disabled); }
-      100% { background: var(--black); }
     }
     @media (max-width: 640px) { .fidget { display: none; } }
 
@@ -168,7 +165,7 @@
       align-items: center;
       gap: var(--space-md);
       border: 1px solid var(--border-visible);
-      border-radius: 8px;
+      border-radius: 0px;
       padding: var(--space-sm) var(--space-sm);
       transition: border-color 0.18s;
     }
@@ -188,7 +185,6 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       padding: 4px 10px;
-      border-radius: 4px;
       cursor: pointer;
       transition: color 0.18s, border-color 0.18s;
       white-space: nowrap;
@@ -220,7 +216,7 @@
       left: 0;
       background: var(--surface-raised);
       border: 1px solid var(--border-visible);
-      border-radius: 8px;
+      border-radius: 0px;
       min-width: 160px;
       z-index: 20;
       overflow: hidden;

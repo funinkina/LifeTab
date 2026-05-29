@@ -493,17 +493,34 @@ function initFidget() {
   const clock = document.querySelector('.clock');
   if (!grid || !clock) return;
 
-  const CELL = 24;       // target px per cell (incl. 1px grid line)
+  const CELL = 18;       // target px per cell (incl. 1px grid line)
   const HUE_STEP = 23;   // deg of hue rotation per new cell → rainbow trail
 
+  const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
   let cols = 0, rows = 0, cells = [];
-  let hovering = false, raf = 0, pending = null;
+  let raf = 0, pending = null;
   let hue = Math.random() * 360, lastIdx = -1;
+  let life = null, lifeTimer = 0, lifeHue = Math.random() * 360, lifePaused = false;
+
+  function pauseLife() {                       // hover → freeze sim, pure hue mode
+    if (lifePaused) return;
+    lifePaused = true;
+    clearTimeout(lifeTimer);
+    for (const c of cells) c.classList.remove('gol');
+  }
+
+  function resumeLife() {                       // leave → sim breathes again
+    lifePaused = false;
+    if (reduceMotion || !cells.length) return;
+    clearTimeout(lifeTimer);
+    lifeRender();
+    lifeTimer = setTimeout(lifeLoop, LIFE_MS);
+  }
 
   // pop instantly with hue h, then fade back over the CSS transition → trail
   function litPop(cell, h) {
     cell.style.setProperty('--h', h.toFixed(0));
-    cell.classList.remove('idle');
     cell.classList.add('lit');
     requestAnimationFrame(() =>
       requestAnimationFrame(() => cell.classList.remove('lit')));
@@ -513,6 +530,7 @@ function initFidget() {
     const h = clock.offsetHeight;
     const w = grid.clientWidth;
     if (w < 8 || h < 8) return;
+    clearTimeout(lifeTimer);
     grid.style.height = h + 'px';
     cols = Math.max(1, Math.floor((w + 1) / CELL));
     rows = Math.max(1, Math.floor((h + 1) / CELL));
@@ -528,6 +546,8 @@ function initFidget() {
     grid.appendChild(frag);
     cells = Array.from(grid.children);
     lastIdx = -1;
+    seedLife(0.18);
+    if (!reduceMotion) { lifeRender(); lifeTimer = setTimeout(lifeLoop, LIFE_MS); }
   }
 
   function cellAt(clientX, clientY) {
@@ -548,15 +568,18 @@ function initFidget() {
     lastIdx = idx;
     hue = (hue + HUE_STEP) % 360;          // shift hue each new cell → rainbow
     litPop(cells[idx], hue);
+    if (life) life[idx] = 1;               // hover plants live cells into the sim
   }
 
+  grid.addEventListener('mouseenter', pauseLife);
+
   grid.addEventListener('mousemove', e => {
-    hovering = true;
+    pauseLife();
     pending = cellAt(e.clientX, e.clientY);
     if (!raf) raf = requestAnimationFrame(flush);
   });
 
-  grid.addEventListener('mouseleave', () => { hovering = false; lastIdx = -1; });
+  grid.addEventListener('mouseleave', () => { lastIdx = -1; resumeLife(); });
 
   // Click — colorful ripple expanding outward across the whole grid
   grid.addEventListener('mousedown', e => {
@@ -576,16 +599,58 @@ function initFidget() {
         idxs.forEach(i => litPop(cells[i], h));
       }, d * 28);
     });
+    // seed a burst of life at the click point → it grows + drifts via the sim
+    if (life) {
+      const R = 3;
+      for (let dy = -R; dy <= R; dy++) {
+        for (let dx = -R; dx <= R; dx++) {
+          const x = cx + dx, y = cy + dy;
+          if (x < 0 || y < 0 || x >= cols || y >= rows) continue;
+          if (Math.hypot(dx, dy) <= R && Math.random() < 0.6) life[y * cols + x] = 1;
+        }
+      }
+    }
   });
 
-  // Ambient idle blink — keeps surface alive (replaces LIVE dot)
-  setInterval(() => {
-    if (hovering || !cells.length) return;
-    const cell = cells[(Math.random() * cells.length) | 0];
-    if (cell.classList.contains('idle')) return;
-    cell.classList.add('idle');
-    cell.addEventListener('animationend', () => cell.classList.remove('idle'), { once: true });
-  }, 700);
+  /* ── Conway's Game of Life — ambient living texture ── */
+  const LIFE_MS = 2000;   // generation interval
+
+  function seedLife(density) {
+    life = new Uint8Array(cols * rows);
+    for (let i = 0; i < life.length; i++) life[i] = Math.random() < density ? 1 : 0;
+  }
+
+  function lifeStep() {
+    const next = new Uint8Array(cols * rows);
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        let n = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            const nx = (x + dx + cols) % cols;   // toroidal wrap
+            const ny = (y + dy + rows) % rows;
+            n += life[ny * cols + nx];
+          }
+        }
+        const i = y * cols + x;
+        next[i] = life[i] ? (n === 2 || n === 3 ? 1 : 0) : (n === 3 ? 1 : 0);
+      }
+    }
+    life = next;
+  }
+
+  function lifeRender() {
+    lifeHue = (lifeHue + 1.3) % 360;       // slow hue drift across generations
+    grid.style.setProperty('--gh', lifeHue.toFixed(0));
+    for (let i = 0; i < cells.length; i++) cells[i].classList.toggle('gol', life[i] === 1);
+  }
+
+  function lifeLoop() {
+    lifeStep();
+    lifeRender();
+    lifeTimer = setTimeout(lifeLoop, LIFE_MS);
+  }
 
   build();
   document.fonts?.ready.then(build);
