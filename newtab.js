@@ -55,9 +55,9 @@ function tick() {
   const n = new Date();
   document.getElementById('greeting').textContent = greet();
   document.getElementById('time-display').innerHTML =
-    `${pad(n.getHours())}<span class="sep">:</span>${pad(n.getMinutes())}<span class="sep">:</span><span class="sec">${pad(n.getSeconds())}</span>`;
+    `${pad(n.getHours())}<span class="sep">:</span>${pad(n.getMinutes())}<span class="sec">${pad(n.getSeconds())}</span>`;
   document.getElementById('dateline').textContent =
-    `${DAYS[n.getDay()]}, ${MONTHS[n.getMonth()]} ${n.getDate()}`;
+    `${DAYS[n.getDay()]} · ${MONTHS[n.getMonth()]} ${n.getDate()}`;
 }
 
 tick();
@@ -67,51 +67,34 @@ setInterval(tick, 1000);
 /* ── Quick links ────────────────────────────────── */
 const linksGrid = document.getElementById('links-grid');
 
-CONFIG.LINKS.forEach(({ label, url }) => {
-  let domain = '';
-  try { domain = new URL(url).hostname; } catch {}
-  const faviconSrc = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
-
+CONFIG.LINKS.forEach(({ label, url }, i) => {
   const a = document.createElement('a');
   a.href = url;
-  a.className = 'link-tile';
+  a.className = 'link';
 
-  const wrap = document.createElement('div');
-  wrap.className = 'link-favicon';
-
-  const img = document.createElement('img');
-  img.src = faviconSrc;
-  img.alt = '';
-  img.onerror = () => img.remove();
-  wrap.appendChild(img);
+  const idx = document.createElement('span');
+  idx.className = 'link-idx';
+  idx.textContent = pad(i + 1);
 
   const lbl = document.createElement('span');
   lbl.className = 'link-name';
   lbl.textContent = label;
 
-  a.appendChild(wrap);
+  const arrow = document.createElement('span');
+  arrow.className = 'link-arrow';
+  arrow.textContent = '→';
+
+  a.appendChild(idx);
   a.appendChild(lbl);
+  a.appendChild(arrow);
   linksGrid.appendChild(a);
 });
 
 
 /* ── Weather ────────────────────────────────────── */
-const W_ICONS = {
-  '01d':'☀️','01n':'🌙',
-  '02d':'⛅','02n':'⛅',
-  '03d':'🌥️','03n':'🌥️',
-  '04d':'☁️','04n':'☁️',
-  '09d':'🌦️','09n':'🌦️',
-  '10d':'🌧️','10n':'🌧️',
-  '11d':'⛈️','11n':'⛈️',
-  '13d':'❄️','13n':'❄️',
-  '50d':'🌫️','50n':'🌫️',
-};
-
 const unitSym = CONFIG.WEATHER_UNITS === 'imperial' ? '°F' : '°C';
 
 function renderWeather(d) {
-  const icon   = W_ICONS[d.weather[0].icon] || '🌡️';
   const temp   = Math.round(d.main.temp);
   const feels  = Math.round(d.main.feels_like);
   const hum    = d.main.humidity;
@@ -119,20 +102,20 @@ function renderWeather(d) {
   const city   = d.name;
 
   document.getElementById('weather-body').innerHTML = `
-    <div class="w-main">
-      <div class="w-icon">${icon}</div>
-      <div class="w-temp">${temp}<span class="w-unit">${unitSym}</span></div>
-    </div>
+    <div class="w-temp">${temp}<span class="w-unit">${unitSym}</span></div>
     <div class="w-desc">${desc}</div>
-    <div class="w-city">${city}</div>
-    <div class="w-meta">
-      <div class="w-meta-item">
-        <span class="w-meta-label">Feels like</span>
-        <span class="w-meta-val">${feels}${unitSym}</span>
+    <div class="stat-rows">
+      <div class="stat">
+        <span class="label">Feels like</span>
+        <span class="stat-val">${feels}${unitSym}</span>
       </div>
-      <div class="w-meta-item">
-        <span class="w-meta-label">Humidity</span>
-        <span class="w-meta-val">${hum}%</span>
+      <div class="stat">
+        <span class="label">Humidity</span>
+        <span class="stat-val">${hum}%</span>
+      </div>
+      <div class="stat">
+        <span class="label">Location</span>
+        <span class="stat-val">${city}</span>
       </div>
     </div>
   `;
