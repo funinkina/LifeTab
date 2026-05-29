@@ -246,6 +246,179 @@
     .link:hover .link-arrow { color: var(--accent); transform: translateX(4px); }
 
     @keyframes fadeIn { to { opacity: 1; } }
+
+    /* ── Settings button ──────────────────────────── */
+    .settings-btn {
+      position: fixed;
+      bottom: clamp(20px, 3vw, 48px);
+      left: clamp(20px, 3vw, 48px);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-disabled);
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.18s;
+      z-index: 50;
+    }
+    .settings-btn:hover { color: var(--text-secondary); }
+    .settings-btn svg { display: block; width: 100%; height: 100%; }
+
+    /* ── Settings overlay ─────────────────────────── */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-lg);
+    }
+    .settings-overlay.open { display: flex; }
+
+    /* ── Settings panel ───────────────────────────── */
+    .settings-panel {
+      width: 100%;
+      max-width: 560px;
+      max-height: 86vh;
+      background: var(--surface);
+      border: 1px solid var(--border-visible);
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border-visible);
+      flex-shrink: 0;
+    }
+    .settings-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--text-disabled);
+      padding: 0;
+      transition: color 0.18s;
+    }
+    .settings-close:hover { color: var(--text-primary); }
+
+    .settings-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 var(--space-lg) var(--space-lg);
+    }
+
+    .settings-section {
+      border-top: 1px solid var(--border-visible);
+      padding-top: var(--space-md);
+      margin-top: var(--space-lg);
+    }
+    .s-section-title { display: block; margin-bottom: var(--space-md); }
+
+    .settings-field {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: var(--space-md);
+      align-items: baseline;
+      padding: var(--space-sm) 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .settings-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      padding: 5px 0;
+      outline: none;
+      width: 100%;
+      transition: border-bottom-color 0.18s;
+    }
+    .settings-input:focus { border-bottom-color: var(--text-secondary); }
+    select.settings-input { cursor: pointer; -webkit-appearance: none; appearance: none; }
+    select.settings-input option { background: var(--surface); color: var(--text-primary); }
+
+    /* ── Settings: link rows ──────────────────────── */
+    .s-link-row {
+      display: grid;
+      grid-template-columns: 26px 1fr 2fr 82px;
+      gap: var(--space-sm);
+      align-items: center;
+      padding: var(--space-sm) 0;
+      border-top: 1px solid var(--border);
+    }
+    .s-idx { color: var(--text-disabled); font-size: 10px; }
+    .s-link-btns { display: flex; gap: 2px; justify-content: flex-end; }
+
+    .s-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--text-disabled);
+      padding: 4px 5px;
+      transition: color 0.15s;
+      line-height: 1;
+    }
+    .s-btn:hover:not(:disabled) { color: var(--text-primary); }
+    .s-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+    .s-btn-del:hover:not(:disabled) { color: var(--accent); }
+
+    .s-add-link-btn {
+      width: 100%;
+      margin-top: var(--space-md);
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      padding: var(--space-sm) var(--space-md);
+      cursor: pointer;
+      transition: color 0.18s, border-color 0.18s;
+    }
+    .s-add-link-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+
+    /* ── Settings footer ──────────────────────────── */
+    .settings-footer {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: flex-end;
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--border-visible);
+    }
+    .settings-save {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      padding: var(--space-sm) var(--space-xl);
+      cursor: pointer;
+      transition: opacity 0.18s;
+    }
+    .settings-save:hover { opacity: 0.85; }
+    .settings-save:disabled { opacity: 0.5; cursor: default; }
   </style>
 </head>
 <body>
@@ -279,6 +452,70 @@
     </div>
 
   </section>
+
+<!-- Settings button (bottom-left, fixed) -->
+<button class="settings-btn" id="settings-btn" aria-label="Open settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+    <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+    <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
+    <line x1="17" y1="16" x2="23" y2="16"/>
+  </svg>
+</button>
+
+<!-- Settings overlay -->
+<div class="settings-overlay" id="settings-overlay">
+  <div class="settings-panel">
+
+    <div class="settings-header">
+      <span class="label">SETTINGS</span>
+      <button class="settings-close" id="settings-close">✕ CLOSE</button>
+    </div>
+
+    <div class="settings-body">
+
+      <div class="settings-section">
+        <span class="label s-section-title">GENERAL</span>
+        <div class="settings-field">
+          <label class="label" for="s-name">Name</label>
+          <input id="s-name" type="text" class="settings-input" placeholder="Your first name">
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <span class="label s-section-title">WEATHER</span>
+        <div class="settings-field">
+          <label class="label" for="s-weather-key">API Key</label>
+          <input id="s-weather-key" type="text" class="settings-input" placeholder="openweathermap.org key" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="settings-field">
+          <label class="label" for="s-weather-loc">Location</label>
+          <input id="s-weather-loc" type="text" class="settings-input" placeholder="City name or 'auto'">
+        </div>
+        <div class="settings-field">
+          <label class="label" for="s-weather-units">Units</label>
+          <select id="s-weather-units" class="settings-input">
+            <option value="metric">Metric (°C)</option>
+            <option value="imperial">Imperial (°F)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <span class="label s-section-title">QUICK LINKS</span>
+        <div id="s-links-list"></div>
+        <button class="s-add-link-btn" id="s-add-link">+ ADD LINK</button>
+      </div>
+
+    </div>
+
+    <div class="settings-footer">
+      <button class="settings-save" id="settings-save">SAVE</button>
+    </div>
+
+  </div>
+</div>
 
 <script src="newtab.js"></script>
 
