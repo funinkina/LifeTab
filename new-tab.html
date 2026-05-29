@@ -15,8 +15,8 @@
       --black:           #141414;
       --surface:         #111111;
       --surface-raised:  #1A1A1A;
-      --border:          #222222;
-      --border-visible:  #333333;
+      --border:          #434343;
+      --border-visible:  #8e8e8e;
       --text-disabled:   #666666;
       --text-secondary:  #999999;
       --text-primary:    #E8E8E8;
@@ -145,9 +145,12 @@
       display: flex;
       align-items: center;
       gap: var(--space-md);
-      border-bottom: 1px solid var(--border-visible);
-      padding-bottom: 10px;
+      border: 1px solid var(--border-visible);
+      border-radius: 8px;
+      padding: var(--space-sm) var(--space-sm);
+      transition: border-color 0.18s;
     }
+    .search-bar:focus-within { border-color: var(--text-secondary); }
 
     .search-engine-selector { position: relative; flex-shrink: 0; }
 
@@ -609,7 +612,8 @@
         <div class="search-engine-selector" id="search-engine-selector">
           <button class="search-engine-tag" id="search-engine-tag"
             aria-label="Select search engine" aria-expanded="false">
-            <img class="search-engine-favicon" id="search-engine-favicon" src="" alt="">
+            <img class="search-engine-favicon" id="search-engine-favicon" src
+              alt>
             <span id="search-engine-label">GOOGLE</span>
           </button>
           <div class="search-engine-dropdown" id="search-engine-dropdown"></div>
