@@ -342,7 +342,7 @@ body {
   left: 0;
   right: 0;
   background: var(--surface-raised);
-  border: 1px solid var(--border-visible);
+  border: 1px solid var(--accent);
   border-bottom: none;
   list-style: none;
   margin: 0;

@@ -43,6 +43,7 @@ const CONFIG = {
   WEATHER_API_KEY: '',
   WEATHER_LOCATION: 'Meerut',
   WEATHER_UNITS: 'metric',
+  WEATHER_SHOW_LOCATION: true,
   THEME: 'system',
   SEARCH_ENGINE: 'google',
   LINKS: [
@@ -243,7 +244,7 @@ function renderWeather(d) {
     <div class="stat-rows">
       <div class="stat"><span class="label">Feels like</span><span class="stat-val">${feels}${sym}</span></div>
       <div class="stat"><span class="label">Humidity</span><span class="stat-val">${hum}%</span></div>
-      <div class="stat"><span class="label">Location</span><span class="stat-val">${city}</span></div>
+      ${CONFIG.WEATHER_SHOW_LOCATION ? `<div class="stat"><span class="label">Location</span><span class="stat-val">${city}</span></div>` : ''}
     </div>
   `;
 
@@ -555,6 +556,7 @@ function openSettings() {
   document.getElementById('s-weather-key').value = CONFIG.WEATHER_API_KEY;
   document.getElementById('s-weather-loc').value = CONFIG.WEATHER_LOCATION;
   document.getElementById('s-weather-units').value = CONFIG.WEATHER_UNITS;
+  document.getElementById('s-weather-show-loc').value = CONFIG.WEATHER_SHOW_LOCATION ? 'show' : 'hide';
   document.getElementById('s-search-engine').value = CONFIG.SEARCH_ENGINE;
   _settingsLinks = CONFIG.LINKS.map(l => ({ ...l }));
   renderSettingsLinks();
@@ -632,6 +634,7 @@ async function saveSettings() {
     weatherApiKey: document.getElementById('s-weather-key').value.trim(),
     weatherLocation: document.getElementById('s-weather-loc').value.trim(),
     weatherUnits: document.getElementById('s-weather-units').value,
+    weatherShowLocation: document.getElementById('s-weather-show-loc').value === 'show',
     searchEngine: document.getElementById('s-search-engine').value,
     links: _settingsLinks.filter(l => l.label.trim() || l.url.trim()),
   });
@@ -833,6 +836,7 @@ async function init() {
   if (saved.weatherApiKey !== undefined) CONFIG.WEATHER_API_KEY = saved.weatherApiKey;
   if (saved.weatherLocation !== undefined) CONFIG.WEATHER_LOCATION = saved.weatherLocation;
   if (saved.weatherUnits !== undefined) CONFIG.WEATHER_UNITS = saved.weatherUnits;
+  if (saved.weatherShowLocation !== undefined) CONFIG.WEATHER_SHOW_LOCATION = saved.weatherShowLocation;
   if (saved.searchEngine !== undefined) CONFIG.SEARCH_ENGINE = saved.searchEngine;
   if (saved.links !== undefined) CONFIG.LINKS = saved.links;
   if (saved.theme !== undefined) CONFIG.THEME = saved.theme;
