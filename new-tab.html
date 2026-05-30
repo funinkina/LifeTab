@@ -45,7 +45,8 @@
         <button class="search-submit" id="search-submit"
           aria-label="Search">→</button>
       </div>
-      <ul class="search-suggestions" id="search-suggestions" role="listbox"></ul>
+      <ul class="search-suggestions" id="search-suggestions"
+        role="listbox"></ul>
     </section>
 
     <!-- ── Bottom grid ────────────────────────────────── -->
@@ -104,6 +105,18 @@
               <label class="label" for="s-font">Font</label>
               <input id="s-font" type="text" class="settings-input"
                 placeholder="Locally installed font name" spellcheck="false">
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <span class="label s-section-title">APPEARANCE</span>
+            <div class="settings-field s-accent-field">
+              <label class="label">Accent</label>
+              <div class="s-accent-picker">
+                <div class="s-accent-presets" id="s-accent-presets"></div>
+                <input id="s-accent-custom" type="text" class="settings-input"
+                  placeholder="#D71921" maxlength="7" spellcheck="false">
+              </div>
             </div>
           </div>
 

@@ -22,10 +22,24 @@ const storage = {
   }
 };
 
+/* ── Accent presets ──────────────────────────────── */
+const ACCENT_PRESETS = [
+  { label: 'Red', value: '#D71921' },
+  { label: 'Orange', value: '#EA580C' },
+  { label: 'Amber', value: '#D97706' },
+  { label: 'Green', value: '#16A34A' },
+  { label: 'Teal', value: '#0D9488' },
+  { label: 'Cyan', value: '#0891B2' },
+  { label: 'Blue', value: '#2563EB' },
+  { label: 'Purple', value: '#9333EA' },
+  { label: 'Pink', value: '#DB2777' },
+];
+
 /* ── Default config ──────────────────────────────── */
 const CONFIG = {
   NAME: 'Aryan',
   FONT: '',
+  ACCENT_COLOR: '',
   WEATHER_API_KEY: '',
   WEATHER_LOCATION: 'Meerut',
   WEATHER_UNITS: 'metric',
@@ -55,7 +69,7 @@ const SEARCH_ENGINES = [
 /* ── Search suggestions ──────────────────────────── */
 const SUGGESTION_APIS = {
   google: q => `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}`,
-  ddg:    q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
+  ddg: q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
 };
 
 let _suggTimer = null;
@@ -284,13 +298,22 @@ async function loadWeather() {
 }
 
 
+/* ── Accent color ────────────────────────────────── */
+function applyAccent(color) {
+  if (color && /^#[0-9a-fA-F]{3,6}$/.test(color)) {
+    document.documentElement.style.setProperty('--accent', color);
+  } else {
+    document.documentElement.style.removeProperty('--accent');
+  }
+}
+
 /* ── Font ────────────────────────────────────────── */
 function applyFont(font) {
   const root = document.documentElement;
   if (font && font.trim()) {
     const f = font.trim();
-    root.style.setProperty('--font-sans',    `'${f}', 'Space Grotesk', system-ui, sans-serif`);
-    root.style.setProperty('--font-mono',    `'${f}', 'Space Mono', monospace`);
+    root.style.setProperty('--font-sans', `'${f}', 'Space Grotesk', system-ui, sans-serif`);
+    root.style.setProperty('--font-mono', `'${f}', 'Space Mono', monospace`);
     root.style.setProperty('--font-display', `'${f}', 'Doto', 'Space Mono', monospace`);
   } else {
     root.style.removeProperty('--font-sans');
@@ -437,7 +460,7 @@ function initSearch() {
   input.addEventListener('keydown', e => {
     const suggOpen = document.getElementById('search-suggestions').classList.contains('open');
     if (e.key === 'ArrowDown' && suggOpen) { e.preventDefault(); navigateSuggestions(1); return; }
-    if (e.key === 'ArrowUp'   && suggOpen) { e.preventDefault(); navigateSuggestions(-1); return; }
+    if (e.key === 'ArrowUp' && suggOpen) { e.preventDefault(); navigateSuggestions(-1); return; }
     if (e.key === 'Enter') { hideSuggestions(); performSearch(); return; }
     if (e.key === 'Escape') {
       if (suggOpen) { hideSuggestions(); return; }
@@ -495,9 +518,40 @@ function initSettings() {
   document.getElementById('s-add-link').addEventListener('click', addSettingsLink);
 }
 
+function renderAccentPresets(current) {
+  const container = document.getElementById('s-accent-presets');
+  if (!container) return;
+  container.innerHTML = '';
+  ACCENT_PRESETS.forEach(({ label, value }) => {
+    const swatch = document.createElement('button');
+    const isActive = current && value.toLowerCase() === current.toLowerCase();
+    swatch.className = 's-accent-swatch' + (isActive ? ' active' : '');
+    swatch.style.background = value;
+    swatch.title = label;
+    swatch.setAttribute('aria-label', label);
+    swatch.type = 'button';
+    swatch.addEventListener('click', () => {
+      container.querySelectorAll('.s-accent-swatch').forEach(s => s.classList.remove('active'));
+      swatch.classList.add('active');
+      document.getElementById('s-accent-custom').value = value;
+    });
+    container.appendChild(swatch);
+  });
+
+  document.getElementById('s-accent-custom').addEventListener('input', e => {
+    const val = e.target.value.trim().toLowerCase();
+    container.querySelectorAll('.s-accent-swatch').forEach(s => {
+      const preset = ACCENT_PRESETS.find(p => p.label === s.title);
+      s.classList.toggle('active', !!preset && preset.value.toLowerCase() === val);
+    });
+  });
+}
+
 function openSettings() {
   document.getElementById('s-name').value = CONFIG.NAME;
   document.getElementById('s-font').value = CONFIG.FONT;
+  renderAccentPresets(CONFIG.ACCENT_COLOR);
+  document.getElementById('s-accent-custom').value = CONFIG.ACCENT_COLOR;
   document.getElementById('s-weather-key').value = CONFIG.WEATHER_API_KEY;
   document.getElementById('s-weather-loc').value = CONFIG.WEATHER_LOCATION;
   document.getElementById('s-weather-units').value = CONFIG.WEATHER_UNITS;
@@ -574,6 +628,7 @@ async function saveSettings() {
   await storage.save({
     name: document.getElementById('s-name').value.trim(),
     font: document.getElementById('s-font').value.trim(),
+    accentColor: document.getElementById('s-accent-custom').value.trim(),
     weatherApiKey: document.getElementById('s-weather-key').value.trim(),
     weatherLocation: document.getElementById('s-weather-loc').value.trim(),
     weatherUnits: document.getElementById('s-weather-units').value,
@@ -599,7 +654,7 @@ function initFidget() {
   let cols = 0, rows = 0, cells = [];
   let raf = 0, pending = null;
   let hue = Math.random() * 360, lastIdx = -1;
-  let life = null, lifeTimer = 0, lifeHue = Math.random() * 360, lifePaused = false;
+  let life = null, lifeTimer = 0, lifePaused = false;
 
   function pauseLife() {                       // hover → freeze sim, pure hue mode
     if (lifePaused) return;
@@ -744,8 +799,6 @@ function initFidget() {
   }
 
   function lifeRender() {
-    lifeHue = (lifeHue + 1.3) % 360;       // slow hue drift across generations
-    grid.style.setProperty('--gh', lifeHue.toFixed(0));
     for (let i = 0; i < cells.length; i++) cells[i].classList.toggle('gol', life[i] === 1);
   }
 
@@ -776,6 +829,7 @@ async function init() {
   const saved = await storage.load();
   if (saved.name !== undefined) CONFIG.NAME = saved.name;
   if (saved.font !== undefined) CONFIG.FONT = saved.font;
+  if (saved.accentColor !== undefined) CONFIG.ACCENT_COLOR = saved.accentColor;
   if (saved.weatherApiKey !== undefined) CONFIG.WEATHER_API_KEY = saved.weatherApiKey;
   if (saved.weatherLocation !== undefined) CONFIG.WEATHER_LOCATION = saved.weatherLocation;
   if (saved.weatherUnits !== undefined) CONFIG.WEATHER_UNITS = saved.weatherUnits;
@@ -784,6 +838,7 @@ async function init() {
   if (saved.theme !== undefined) CONFIG.THEME = saved.theme;
 
   applyFont(CONFIG.FONT);
+  applyAccent(CONFIG.ACCENT_COLOR);
   tick();
   let clockInterval = setInterval(tick, 1000);
 
