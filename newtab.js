@@ -521,9 +521,14 @@ function initFidget() {
   // pop instantly with hue h, then fade back over the CSS transition → trail
   function litPop(cell, h) {
     cell.style.setProperty('--h', h.toFixed(0));
+    cell.classList.remove('fading');
     cell.classList.add('lit');
     requestAnimationFrame(() =>
-      requestAnimationFrame(() => cell.classList.remove('lit')));
+      requestAnimationFrame(() => {
+        cell.classList.add('fading');
+        cell.classList.remove('lit');
+        setTimeout(() => cell.classList.remove('fading'), 650);
+      }));
   }
 
   function build() {
@@ -613,7 +618,7 @@ function initFidget() {
   });
 
   /* ── Conway's Game of Life — ambient living texture ── */
-  const LIFE_MS = 2000;   // generation interval
+  const LIFE_MS = 800;   // generation interval
 
   function seedLife(density) {
     life = new Uint8Array(cols * rows);

@@ -118,14 +118,15 @@
     }
     .fidget-cell {
       background: var(--black);
-      transition: background-color 0.6s ease-out;
     }
-    .fidget-cell.gol {  /* Game of Life — faint living texture */
+    .fidget-cell.gol {  /* Game of Life — faint living texture, instant toggle */
       background: hsl(var(--gh, 200) 55% 52% / 0.18);
     }
     .fidget-cell.lit {  /* hover/click — bright, paints over the sim */
       background: hsl(var(--h, 0) 90% 55%);  /* L=55% reads on both black + off-white */
-      transition: none;
+    }
+    .fidget-cell.fading {  /* trail fade-back, applied only on lit removal */
+      transition: background-color 0.6s ease-out;
     }
     @media (max-width: 640px) { .fidget { display: none; } }
 
@@ -313,7 +314,7 @@
     .w-icon-svg {
       width: 48px;
       height: 48px;
-      color: var(--text-secondary);
+      color: var(--text-primary);
       flex-shrink: 0;
     }
 
