@@ -9,6 +9,8 @@
   "permissions": ["storage"],
   "host_permissions": [
     "https://api.openweathermap.org/*",
-    "https://icons.duckduckgo.com/*"
+    "https://icons.duckduckgo.com/*",
+    "https://suggestqueries.google.com/*",
+    "https://duckduckgo.com/*"
   ]
 }

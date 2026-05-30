@@ -52,6 +52,68 @@ const SEARCH_ENGINES = [
   { key: 'bing', label: 'BING', url: 'https://www.bing.com/search?q=', domain: 'bing.com' },
 ];
 
+/* ── Search suggestions ──────────────────────────── */
+const SUGGESTION_APIS = {
+  google: q => `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}`,
+  ddg:    q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
+};
+
+let _suggTimer = null;
+let _suggFocusIdx = -1;
+let _suggItems = [];
+
+async function fetchSuggestions(query) {
+  const key = getCurrentEngine().key;
+  const api = SUGGESTION_APIS[key];
+  if (!api || !query.trim()) { hideSuggestions(); return; }
+  try {
+    const res = await fetch(api(query));
+    const data = await res.json();
+    _suggItems = (data[1] || []).slice(0, 8);
+    renderSuggestions(_suggItems);
+  } catch {
+    hideSuggestions();
+  }
+}
+
+function renderSuggestions(items) {
+  const list = document.getElementById('search-suggestions');
+  if (!items.length) { hideSuggestions(); return; }
+  list.innerHTML = items.map((s, i) =>
+    `<li class="search-suggestion-item" role="option" data-idx="${i}">${esc(s)}</li>`
+  ).join('');
+  list.classList.add('open');
+  _suggFocusIdx = -1;
+  list.querySelectorAll('.search-suggestion-item').forEach(el => {
+    el.addEventListener('mousedown', e => {
+      e.preventDefault();
+      document.getElementById('search-input').value = _suggItems[+el.dataset.idx];
+      hideSuggestions();
+      performSearch();
+    });
+  });
+}
+
+function hideSuggestions() {
+  const list = document.getElementById('search-suggestions');
+  list.classList.remove('open');
+  list.innerHTML = '';
+  _suggItems = [];
+  _suggFocusIdx = -1;
+}
+
+function navigateSuggestions(dir) {
+  const items = document.querySelectorAll('.search-suggestion-item');
+  if (!items.length) return false;
+  items[_suggFocusIdx]?.classList.remove('focused');
+  _suggFocusIdx = Math.max(-1, Math.min(items.length - 1, _suggFocusIdx + dir));
+  if (_suggFocusIdx >= 0) {
+    items[_suggFocusIdx].classList.add('focused');
+    document.getElementById('search-input').value = _suggItems[_suggFocusIdx];
+  }
+  return true;
+}
+
 /* ── Clock ───────────────────────────────────────── */
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -344,6 +406,7 @@ function closeEngineDropdown() {
 async function selectEngine(key) {
   CONFIG.SEARCH_ENGINE = key;
   closeEngineDropdown();
+  hideSuggestions();
   renderSearchEngine();
   const saved = await storage.load();
   await storage.save({ ...saved, searchEngine: key });
@@ -358,15 +421,32 @@ function performSearch() {
 
 function initSearch() {
   document.getElementById('search-engine-tag').addEventListener('click', toggleEngineDropdown);
-  document.getElementById('search-submit').addEventListener('click', performSearch);
-  document.getElementById('search-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') performSearch();
+  document.getElementById('search-submit').addEventListener('click', () => { hideSuggestions(); performSearch(); });
+
+  const input = document.getElementById('search-input');
+
+  input.addEventListener('input', e => {
+    clearTimeout(_suggTimer);
+    const q = e.target.value.trim();
+    if (!q) { hideSuggestions(); return; }
+    _suggTimer = setTimeout(() => fetchSuggestions(q), 200);
+  });
+
+  input.addEventListener('blur', () => setTimeout(hideSuggestions, 150));
+
+  input.addEventListener('keydown', e => {
+    const suggOpen = document.getElementById('search-suggestions').classList.contains('open');
+    if (e.key === 'ArrowDown' && suggOpen) { e.preventDefault(); navigateSuggestions(1); return; }
+    if (e.key === 'ArrowUp'   && suggOpen) { e.preventDefault(); navigateSuggestions(-1); return; }
+    if (e.key === 'Enter') { hideSuggestions(); performSearch(); return; }
     if (e.key === 'Escape') {
+      if (suggOpen) { hideSuggestions(); return; }
       const dropdown = document.getElementById('search-engine-dropdown');
       if (dropdown.classList.contains('open')) closeEngineDropdown();
       else e.target.blur();
     }
   });
+
   document.addEventListener('click', e => {
     const selector = document.getElementById('search-engine-selector');
     if (selector && !selector.contains(e.target)) closeEngineDropdown();
