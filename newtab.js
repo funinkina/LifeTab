@@ -70,7 +70,10 @@ const SEARCH_ENGINES = [
 /* ── Search suggestions ──────────────────────────── */
 const SUGGESTION_APIS = {
   google: q => `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}`,
-  ddg: q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
+  ddg:    q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
+  kagi:   q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
+  brave:  q => `https://search.brave.com/api/suggest?q=${encodeURIComponent(q)}`,
+  bing:   q => `https://api.bing.com/osjson.aspx?query=${encodeURIComponent(q)}`,
 };
 
 let _suggTimer = null;
