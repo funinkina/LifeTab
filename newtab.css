@@ -150,7 +150,7 @@ body {
 }
 
 .time {
-  font-family: var(--font-display);
+  font-family: 'Doto', 'Space Mono', monospace;
   font-size: clamp(64px, 13vw, 150px);
   font-weight: 500;
   line-height: 1;
@@ -199,20 +199,23 @@ body {
 .search-engine-selector {
   position: relative;
   flex-shrink: 0;
+  align-self: stretch;
 }
 
 .search-engine-tag {
   display: flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid var(--border-visible);
+  border: none;
+  border-right: 1px solid var(--border-visible);
   background: none;
   color: var(--text-disabled);
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 4px 10px;
+  padding: 0 10px;
+  height: 100%;
   cursor: pointer;
   transition: color 0.18s, border-color 0.18s;
   white-space: nowrap;
@@ -221,7 +224,6 @@ body {
 .search-engine-tag:hover,
 .search-engine-tag.open {
   color: var(--text-display);
-  border-color: var(--text-display);
 }
 
 .search-engine-favicon {
@@ -628,7 +630,7 @@ body {
   gap: var(--space-md);
   align-items: baseline;
   padding: var(--space-sm) 0;
-  border-top: 1px solid var(--border);
+  /* border-top: 1px solid var(--border); */
 }
 
 .settings-input {
