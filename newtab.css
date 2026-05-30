@@ -550,6 +550,37 @@ body {
   }
 }
 
+/* ── Keyboard hints ──────────────────────────────── */
+.kb-hints {
+  position: fixed;
+  bottom: clamp(20px, 3vw, 48px);
+  right: clamp(20px, 3vw, 48px);
+  display: flex;
+  gap: var(--space-lg);
+  align-items: center;
+  z-index: 50;
+}
+
+.kb-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-disabled);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  border: 1px solid var(--border-visible);
+  padding: 1px 5px;
+  color: var(--text-secondary);
+  background: none;
+}
+
 /* ── Settings button ──────────────────────────────── */
 .settings-btn,
 .theme-btn {
