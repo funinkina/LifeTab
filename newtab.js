@@ -37,11 +37,11 @@ const ACCENT_PRESETS = [
 
 /* ── Default config ──────────────────────────────── */
 const CONFIG = {
-  NAME: 'Aryan',
+  NAME: '',
   FONT: '',
   ACCENT_COLOR: '',
   WEATHER_API_KEY: '',
-  WEATHER_LOCATION: 'Meerut',
+  WEATHER_LOCATION: '',
   WEATHER_UNITS: 'metric',
   WEATHER_SHOW_LOCATION: true,
   THEME: 'system',
