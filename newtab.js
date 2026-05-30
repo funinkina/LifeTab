@@ -25,6 +25,7 @@ const storage = {
 /* ── Default config ──────────────────────────────── */
 const CONFIG = {
   NAME: 'Aryan',
+  FONT: '',
   WEATHER_API_KEY: '',
   WEATHER_LOCATION: 'Meerut',
   WEATHER_UNITS: 'metric',
@@ -221,6 +222,21 @@ async function loadWeather() {
 }
 
 
+/* ── Font ────────────────────────────────────────── */
+function applyFont(font) {
+  const root = document.documentElement;
+  if (font && font.trim()) {
+    const f = font.trim();
+    root.style.setProperty('--font-sans',    `'${f}', 'Space Grotesk', system-ui, sans-serif`);
+    root.style.setProperty('--font-mono',    `'${f}', 'Space Mono', monospace`);
+    root.style.setProperty('--font-display', `'${f}', 'Doto', 'Space Mono', monospace`);
+  } else {
+    root.style.removeProperty('--font-sans');
+    root.style.removeProperty('--font-mono');
+    root.style.removeProperty('--font-display');
+  }
+}
+
 /* ── Theme ───────────────────────────────────────── */
 const THEME_ICONS = {
   system: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -401,6 +417,7 @@ function initSettings() {
 
 function openSettings() {
   document.getElementById('s-name').value = CONFIG.NAME;
+  document.getElementById('s-font').value = CONFIG.FONT;
   document.getElementById('s-weather-key').value = CONFIG.WEATHER_API_KEY;
   document.getElementById('s-weather-loc').value = CONFIG.WEATHER_LOCATION;
   document.getElementById('s-weather-units').value = CONFIG.WEATHER_UNITS;
@@ -476,6 +493,7 @@ async function saveSettings() {
 
   await storage.save({
     name: document.getElementById('s-name').value.trim(),
+    font: document.getElementById('s-font').value.trim(),
     weatherApiKey: document.getElementById('s-weather-key').value.trim(),
     weatherLocation: document.getElementById('s-weather-loc').value.trim(),
     weatherUnits: document.getElementById('s-weather-units').value,
@@ -667,6 +685,7 @@ function initFidget() {
 async function init() {
   const saved = await storage.load();
   if (saved.name !== undefined) CONFIG.NAME = saved.name;
+  if (saved.font !== undefined) CONFIG.FONT = saved.font;
   if (saved.weatherApiKey !== undefined) CONFIG.WEATHER_API_KEY = saved.weatherApiKey;
   if (saved.weatherLocation !== undefined) CONFIG.WEATHER_LOCATION = saved.weatherLocation;
   if (saved.weatherUnits !== undefined) CONFIG.WEATHER_UNITS = saved.weatherUnits;
@@ -674,6 +693,7 @@ async function init() {
   if (saved.links !== undefined) CONFIG.LINKS = saved.links;
   if (saved.theme !== undefined) CONFIG.THEME = saved.theme;
 
+  applyFont(CONFIG.FONT);
   tick();
   setInterval(tick, 1000);
   renderLinks();
