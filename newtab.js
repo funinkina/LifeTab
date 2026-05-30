@@ -679,6 +679,16 @@ function initFidget() {
   document.fonts?.ready.then(build);
   let rt;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 150); });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearTimeout(lifeTimer);
+      lifeTimer = 0;
+    } else if (!lifePaused && !reduceMotion && cells.length) {
+      lifeRender();
+      lifeTimer = setTimeout(lifeLoop, LIFE_MS);
+    }
+  });
 }
 
 /* ── Init ────────────────────────────────────────── */
@@ -695,7 +705,16 @@ async function init() {
 
   applyFont(CONFIG.FONT);
   tick();
-  setInterval(tick, 1000);
+  let clockInterval = setInterval(tick, 1000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(clockInterval);
+    } else {
+      tick();
+      clockInterval = setInterval(tick, 1000);
+    }
+  });
   renderLinks();
   loadWeather();
   initTheme();
