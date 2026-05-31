@@ -78,6 +78,7 @@ const CONFIG = {
   BG_IMAGE_URL: '',
   BG_BRIGHTNESS: 100,
   BG_BLUR: 0,
+  PIXEL_GRID: true,
   LINKS: [
     { label: 'GitHub', url: 'https://github.com' },
     { label: 'Gmail', url: 'https://mail.google.com' },
@@ -615,6 +616,7 @@ function openSettings() {
   document.getElementById('s-weather-loc').value = CONFIG.WEATHER_LOCATION;
   document.getElementById('s-weather-units').value = CONFIG.WEATHER_UNITS;
   document.getElementById('s-weather-show-loc').value = CONFIG.WEATHER_SHOW_LOCATION ? 'show' : 'hide';
+  document.getElementById('s-pixel-grid').value = CONFIG.PIXEL_GRID ? 'show' : 'hide';
   document.getElementById('s-search-engine').value = CONFIG.SEARCH_ENGINE;
 
   const bgSource = document.getElementById('s-bg-source');
@@ -738,6 +740,7 @@ async function saveSettings() {
     bgImageUrl,
     bgBrightness,
     bgBlur,
+    pixelGrid: document.getElementById('s-pixel-grid').value === 'show',
   });
 
   location.reload();
@@ -945,6 +948,7 @@ async function init() {
   if (saved.bgImageUrl !== undefined) CONFIG.BG_IMAGE_URL = saved.bgImageUrl;
   if (saved.bgBrightness !== undefined) CONFIG.BG_BRIGHTNESS = saved.bgBrightness;
   if (saved.bgBlur !== undefined) CONFIG.BG_BLUR = saved.bgBlur;
+  if (saved.pixelGrid !== undefined) CONFIG.PIXEL_GRID = saved.pixelGrid;
 
   await loadIcons();
   applyFont(CONFIG.FONT);
@@ -973,7 +977,12 @@ async function init() {
   initSettings();
   initSearch();
   initKeyboardShortcuts();
-  initFidget();
+  if (CONFIG.PIXEL_GRID) {
+    initFidget();
+  } else {
+    const fidget = document.getElementById('fidget');
+    if (fidget) fidget.style.display = 'none';
+  }
 }
 
 init();
