@@ -612,7 +612,8 @@ function syncSettingsLinks() {
   document.querySelectorAll('#s-links-list .s-link-row').forEach((row, i) => {
     if (_settingsLinks[i]) {
       _settingsLinks[i].label = row.querySelector('.s-link-label').value;
-      _settingsLinks[i].url = row.querySelector('.s-link-url').value;
+      const rawUrl = row.querySelector('.s-link-url').value.trim();
+      _settingsLinks[i].url = rawUrl && !/^https?:\/\//i.test(rawUrl) ? 'https://' + rawUrl : rawUrl;
     }
   });
 }
