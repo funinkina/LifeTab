@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Lifetab",
+  "version": "1.0.0",
+  "description": "Personalised new tab page with clock, weather and quick links.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "lifetab@extension",
+      "strict_min_version": "109.0"
+    }
+  },
+  "chrome_url_overrides": {
+    "newtab": "new-tab.html"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://api.openweathermap.org/*",
+    "https://icons.duckduckgo.com/*",
+    "https://suggestqueries.google.com/*",
+    "https://duckduckgo.com/*"
+  ]
+}

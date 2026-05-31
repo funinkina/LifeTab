@@ -50,11 +50,46 @@ A minimal, highly customizable new tab page for Chrome. Live clock, weather, mul
 
 ## Installation
 
-1. Clone or download this repository
-2. Open Chrome and go to `chrome://extensions`
-3. Enable **Developer mode** (top right)
-4. Click **Load unpacked** and select the project folder
-5. Open a new tab
+Clone or download this repository, then use `make` to build and install.
+
+### Chrome / Edge
+
+```bash
+make install-chrome
+```
+
+This builds `lifetab-1.0.0-chrome.zip` and opens `chrome://extensions`. Then:
+
+1. Enable **Developer mode** (top right toggle)
+2. Click **Load unpacked** and select this folder  
+   *(or drag-drop the zip onto the page)*
+3. Open a new tab
+
+### Firefox
+
+**Run temporarily (dev mode):**
+```bash
+make run-firefox   # requires: npm install -g web-ext
+```
+
+**Build `.zip` for permanent install:**
+```bash
+make pack-firefox
+```
+
+Then in Firefox: `about:addons` → gear icon → **Install Add-on From File** → select the built zip.
+
+> Firefox temp-load (without signing): `about:debugging` → **This Firefox** → **Load Temporary Add-on** → select any file in this folder.
+
+### All targets
+
+| Command | Description |
+|---|---|
+| `make pack-chrome` | Build `lifetab-*-chrome.zip` |
+| `make pack-firefox` | Build `lifetab-*-firefox.zip` (swaps in Firefox manifest) |
+| `make install-chrome` | Pack + open Chrome extensions page |
+| `make run-firefox` | Launch Firefox with extension via `web-ext` |
+| `make clean` | Remove built zips |
 
 ---
 
