@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-      href="https://fonts.googleapis.com/css2?family=Doto:wght@400;500;700&family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500&display=swap"
       rel="stylesheet">
     <link rel="stylesheet" href="newtab.css">
   </head>
@@ -67,7 +67,8 @@
     </section>
 
     <!-- Settings button (bottom-left, fixed) -->
-    <button class="settings-btn" id="settings-btn" aria-label="Open settings"></button>
+    <button class="settings-btn" id="settings-btn"
+      aria-label="Open settings"></button>
 
     <!-- Theme toggle button (bottom-left, fixed, next to settings) -->
     <button class="theme-btn" id="theme-btn" aria-label="Toggle theme"></button>
@@ -123,23 +124,27 @@
             </div>
             <div class="settings-field s-bg-cond" id="s-bg-url-row">
               <label class="label" for="s-bg-url">Image URL</label>
-              <input id="s-bg-url" type="text" class="settings-input" placeholder="https://…" spellcheck="false">
+              <input id="s-bg-url" type="text" class="settings-input"
+                placeholder="https://…" spellcheck="false">
             </div>
             <div class="settings-field s-bg-cond" id="s-bg-file-row">
               <label class="label" for="s-bg-file">Image file</label>
-              <input id="s-bg-file" type="file" accept="image/*" class="settings-input s-file-input">
+              <input id="s-bg-file" type="file" accept="image/*"
+                class="settings-input s-file-input">
             </div>
             <div class="settings-field s-bg-cond" id="s-bg-sliders-row">
               <label class="label" for="s-bg-brightness">Brightness</label>
               <div class="s-range-wrap">
-                <input id="s-bg-brightness" type="range" class="settings-range" min="0" max="100" value="100">
+                <input id="s-bg-brightness" type="range" class="settings-range"
+                  min="0" max="100" value="100">
                 <span class="s-range-val" id="s-bg-brightness-val">100%</span>
               </div>
             </div>
             <div class="settings-field s-bg-cond" id="s-bg-blur-row">
               <label class="label" for="s-bg-blur">Blur</label>
               <div class="s-range-wrap">
-                <input id="s-bg-blur" type="range" class="settings-range" min="0" max="20" value="0">
+                <input id="s-bg-blur" type="range" class="settings-range"
+                  min="0" max="20" value="0">
                 <span class="s-range-val" id="s-bg-blur-val">0px</span>
               </div>
             </div>

@@ -350,7 +350,7 @@ function applyFont(font) {
     const f = font.trim();
     root.style.setProperty('--font-sans', `'${f}', 'Space Grotesk', system-ui, sans-serif`);
     root.style.setProperty('--font-mono', `'${f}', 'Space Mono', monospace`);
-    root.style.setProperty('--font-display', `'${f}', 'Doto', 'Space Mono', monospace`);
+    root.style.setProperty('--font-display', `'${f}', 'JetBrains Mono', 'Space Mono', monospace`);
   } else {
     root.style.removeProperty('--font-sans');
     root.style.removeProperty('--font-mono');

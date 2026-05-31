@@ -17,10 +17,11 @@
   --space-xl: 32px;
   --space-2xl: 48px;
   --space-3xl: 64px;
+  --space-4xl: 88px;
 
-  --font-sans: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'Space Mono', monospace;
-  --font-display: 'Doto', 'Space Mono', monospace;
+  --font-sans: 'Inter';
+  --font-mono: 'JetBrains Mono', 'Space Mono', monospace;
+  --font-display: 'JetBrains Mono', 'Space Mono', monospace;
 }
 
 /* ── Tokens · light ───────────────────────────────── */
@@ -91,8 +92,8 @@ body.has-bg-image {
 
 /* ── Shared label (instrument panel) ──────────────── */
 .label {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
   font-weight: 400;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -108,10 +109,10 @@ body.has-bg-image {
 
 /* ── Clock (primary layer) + fidget row ───────────── */
 .clock-row {
-  margin-top: var(--space-2xl);
+  margin-top: var(--space-xl);
   display: flex;
   align-items: stretch;
-  gap: var(--space-3xl);
+  gap: var(--space-4xl);
 }
 
 .clock {
@@ -165,16 +166,13 @@ body.has-bg-image {
 }
 
 .time {
-  font-family: 'Doto', 'Space Mono', monospace;
+  /* font-family: 'JetBrains Mono', 'Space Mono', monospace; */
+  font-family: 'JetBrainsMono Nerd Font';
   font-size: clamp(64px, 13vw, 150px);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.01em;
   color: var(--text-display);
-}
-
-.time .sep {
-  color: var(--text-disabled);
 }
 
 .time .sec {
@@ -535,7 +533,7 @@ body.has-bg-image {
 }
 
 .link-name {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
