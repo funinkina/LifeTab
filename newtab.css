@@ -75,6 +75,20 @@ body {
   padding: clamp(28px, 5vw, 72px);
 }
 
+body.has-bg-image {
+  background: transparent;
+}
+
+#bg-layer {
+  position: fixed;
+  inset: -40px;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
 /* ── Shared label (instrument panel) ──────────────── */
 .label {
   font-family: var(--font-mono);
@@ -112,8 +126,8 @@ body {
   min-width: 0;
   align-self: stretch;
   display: grid;
-  gap: 1px;
-  background: var(--border-visible);
+  gap: 0;
+  background: transparent;
   border: 1px solid var(--border-visible);
   overflow: hidden;
   opacity: 0;
@@ -121,7 +135,8 @@ body {
 }
 
 .fidget-cell {
-  background: var(--black);
+  background: transparent;
+  box-shadow: 1px 0 0 var(--border-visible), 0 1px 0 var(--border-visible);
 }
 
 /* Game of Life — faint living texture, instant toggle */
@@ -737,6 +752,42 @@ select.settings-input {
 select.settings-input option {
   background: var(--surface);
   color: var(--text-primary);
+}
+
+/* ── Settings: background ─────────────────────────── */
+.s-bg-cond {
+  display: none;
+}
+
+.s-bg-cond.visible {
+  display: grid;
+}
+
+.s-range-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.settings-range {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 2px;
+}
+
+.s-range-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  min-width: 38px;
+  text-align: right;
+}
+
+.s-file-input {
+  cursor: pointer;
+  font-size: 11px;
+  padding: 4px 0;
 }
 
 /* ── Settings: link rows ──────────────────────────── */

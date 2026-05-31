@@ -1,4 +1,32 @@
 /* ── Storage ─────────────────────────────────────── */
+const bgImageStorage = {
+  load() {
+    return new Promise(resolve => {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        chrome.storage.local.get('bgImg', d => resolve(d.bgImg || null));
+      } else {
+        try { resolve(localStorage.getItem('bgImg') || null); }
+        catch { resolve(null); }
+      }
+    });
+  },
+  save(dataUrl) {
+    return new Promise(resolve => {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        if (dataUrl) {
+          chrome.storage.local.set({ bgImg: dataUrl }, resolve);
+        } else {
+          chrome.storage.local.remove('bgImg', resolve);
+        }
+      } else {
+        if (dataUrl) localStorage.setItem('bgImg', dataUrl);
+        else localStorage.removeItem('bgImg');
+        resolve();
+      }
+    });
+  }
+};
+
 const storage = {
   load() {
     return new Promise(resolve => {
@@ -46,6 +74,10 @@ const CONFIG = {
   WEATHER_SHOW_LOCATION: true,
   THEME: 'system',
   SEARCH_ENGINE: 'google',
+  BG_SOURCE: 'none',
+  BG_IMAGE_URL: '',
+  BG_BRIGHTNESS: 100,
+  BG_BLUR: 0,
   LINKS: [
     { label: 'GitHub', url: 'https://github.com' },
     { label: 'Gmail', url: 'https://mail.google.com' },
@@ -326,6 +358,23 @@ function applyFont(font) {
   }
 }
 
+/* ── Background image ───────────────────────────── */
+function applyBackground(src, brightness, blur) {
+  const layer = document.getElementById('bg-layer');
+  if (!src) {
+    layer.style.backgroundImage = '';
+    layer.style.filter = '';
+    document.body.classList.remove('has-bg-image');
+    return;
+  }
+  layer.style.backgroundImage = `url(${JSON.stringify(src)})`;
+  const filters = [];
+  if (brightness !== 100) filters.push(`brightness(${brightness / 100})`);
+  if (blur > 0) filters.push(`blur(${blur}px)`);
+  layer.style.filter = filters.join(' ');
+  document.body.classList.add('has-bg-image');
+}
+
 /* ── Theme ───────────────────────────────────────── */
 const THEME_ICONS = { system: '', light: '', dark: '' };
 
@@ -552,6 +601,13 @@ function renderAccentPresets(current) {
   });
 }
 
+function updateBgCondRows(source) {
+  document.getElementById('s-bg-url-row').classList.toggle('visible', source === 'url');
+  document.getElementById('s-bg-file-row').classList.toggle('visible', source === 'file');
+  document.getElementById('s-bg-sliders-row').classList.toggle('visible', source !== 'none');
+  document.getElementById('s-bg-blur-row').classList.toggle('visible', source !== 'none');
+}
+
 function openSettings() {
   document.getElementById('s-name').value = CONFIG.NAME;
   document.getElementById('s-font').value = CONFIG.FONT;
@@ -562,6 +618,27 @@ function openSettings() {
   document.getElementById('s-weather-units').value = CONFIG.WEATHER_UNITS;
   document.getElementById('s-weather-show-loc').value = CONFIG.WEATHER_SHOW_LOCATION ? 'show' : 'hide';
   document.getElementById('s-search-engine').value = CONFIG.SEARCH_ENGINE;
+
+  const bgSource = document.getElementById('s-bg-source');
+  bgSource.value = CONFIG.BG_SOURCE;
+  document.getElementById('s-bg-url').value = CONFIG.BG_IMAGE_URL;
+  document.getElementById('s-bg-file').value = '';
+  const brightness = document.getElementById('s-bg-brightness');
+  const blur = document.getElementById('s-bg-blur');
+  brightness.value = CONFIG.BG_BRIGHTNESS;
+  blur.value = CONFIG.BG_BLUR;
+  document.getElementById('s-bg-brightness-val').textContent = CONFIG.BG_BRIGHTNESS + '%';
+  document.getElementById('s-bg-blur-val').textContent = CONFIG.BG_BLUR + 'px';
+  updateBgCondRows(CONFIG.BG_SOURCE);
+
+  bgSource.onchange = () => updateBgCondRows(bgSource.value);
+  brightness.oninput = () => {
+    document.getElementById('s-bg-brightness-val').textContent = brightness.value + '%';
+  };
+  blur.oninput = () => {
+    document.getElementById('s-bg-blur-val').textContent = blur.value + 'px';
+  };
+
   _settingsLinks = CONFIG.LINKS.map(l => ({ ...l }));
   renderSettingsLinks();
   document.getElementById('settings-overlay').classList.add('open');
@@ -632,6 +709,23 @@ async function saveSettings() {
   btn.textContent = 'SAVING…';
   btn.disabled = true;
 
+  const bgSource = document.getElementById('s-bg-source').value;
+  const rawBgUrl = document.getElementById('s-bg-url').value.trim();
+  const bgImageUrl = rawBgUrl && !/^https?:\/\//i.test(rawBgUrl) ? 'https://' + rawBgUrl : rawBgUrl;
+  const bgBrightness = Number(document.getElementById('s-bg-brightness').value);
+  const bgBlur = Number(document.getElementById('s-bg-blur').value);
+  const bgFileInput = document.getElementById('s-bg-file');
+
+  if (bgSource === 'file' && bgFileInput.files?.[0]) {
+    await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => bgImageStorage.save(e.target.result).then(resolve);
+      reader.readAsDataURL(bgFileInput.files[0]);
+    });
+  } else if (bgSource !== 'file') {
+    await bgImageStorage.save(null);
+  }
+
   await storage.save({
     name: document.getElementById('s-name').value.trim(),
     font: document.getElementById('s-font').value.trim(),
@@ -642,6 +736,10 @@ async function saveSettings() {
     weatherShowLocation: document.getElementById('s-weather-show-loc').value === 'show',
     searchEngine: document.getElementById('s-search-engine').value,
     links: _settingsLinks.filter(l => l.label.trim() || l.url.trim()),
+    bgSource,
+    bgImageUrl,
+    bgBrightness,
+    bgBlur,
   });
 
   location.reload();
@@ -845,10 +943,21 @@ async function init() {
   if (saved.searchEngine !== undefined) CONFIG.SEARCH_ENGINE = saved.searchEngine;
   if (saved.links !== undefined) CONFIG.LINKS = saved.links;
   if (saved.theme !== undefined) CONFIG.THEME = saved.theme;
+  if (saved.bgSource !== undefined) CONFIG.BG_SOURCE = saved.bgSource;
+  if (saved.bgImageUrl !== undefined) CONFIG.BG_IMAGE_URL = saved.bgImageUrl;
+  if (saved.bgBrightness !== undefined) CONFIG.BG_BRIGHTNESS = saved.bgBrightness;
+  if (saved.bgBlur !== undefined) CONFIG.BG_BLUR = saved.bgBlur;
 
   await loadIcons();
   applyFont(CONFIG.FONT);
   applyAccent(CONFIG.ACCENT_COLOR);
+
+  if (CONFIG.BG_SOURCE === 'url' && CONFIG.BG_IMAGE_URL) {
+    applyBackground(CONFIG.BG_IMAGE_URL, CONFIG.BG_BRIGHTNESS, CONFIG.BG_BLUR);
+  } else if (CONFIG.BG_SOURCE === 'file') {
+    const imgData = await bgImageStorage.load();
+    if (imgData) applyBackground(imgData, CONFIG.BG_BRIGHTNESS, CONFIG.BG_BLUR);
+  }
   tick();
   let clockInterval = setInterval(tick, 1000);
 
