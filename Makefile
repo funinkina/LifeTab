@@ -4,7 +4,7 @@ VERSION        := 1.0.0
 CHROME_ZIP  := $(EXTENSION_NAME)-$(VERSION)-chrome.zip
 FIREFOX_XPI := $(EXTENSION_NAME)-$(VERSION)-firefox.zip
 
-SRC := new-tab.html newtab.js newtab.css icons fonts
+SRC := new-tab.html newtab.js newtab.css favicon.svg icons fonts
 
 # Detect Chrome binary (chrome:// can't be opened by xdg-open)
 UNAME := $(shell uname 2>/dev/null || echo Windows)
