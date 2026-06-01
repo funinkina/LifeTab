@@ -6,14 +6,14 @@ FIREFOX_XPI := $(EXTENSION_NAME)-$(VERSION)-firefox.zip
 
 SRC := new-tab.html newtab.js newtab.css icons
 
-# Detect OS for the 'open' command
+# Detect Chrome binary (chrome:// can't be opened by xdg-open)
 UNAME := $(shell uname 2>/dev/null || echo Windows)
 ifeq ($(UNAME), Darwin)
-  OPEN := open
+  OPEN_CHROME := open -a "Google Chrome"
 else ifeq ($(UNAME), Windows_NT)
-  OPEN := start
+  OPEN_CHROME := start chrome
 else
-  OPEN := xdg-open
+  OPEN_CHROME := $(shell command -v google-chrome 2>/dev/null || command -v google-chrome-stable 2>/dev/null || command -v chromium 2>/dev/null || command -v chromium-browser 2>/dev/null || echo "")
 endif
 
 .PHONY: all help pack-chrome pack-firefox install-chrome run-firefox clean
@@ -41,13 +41,16 @@ $(CHROME_ZIP): manifest.json $(SRC)
 install-chrome: pack-chrome
 	@echo ""
 	@echo "Load unpacked steps:"
-	@echo "  1. Go to chrome://extensions  (or edge://extensions)"
-	@echo "  2. Enable Developer mode"
-	@echo "  3. Click 'Load unpacked' → select THIS folder"
+	@echo "  1. Enable Developer mode (top-right toggle)"
+	@echo "  2. Click 'Load unpacked' → select THIS folder"
+	@echo "  Or drag-drop $(CHROME_ZIP) onto the page."
 	@echo ""
-	@echo "  Or drag-drop $(CHROME_ZIP) onto the extensions page."
-	@echo ""
-	$(OPEN) "chrome://extensions" 2>/dev/null || true
+	@if [ -n "$(OPEN_CHROME)" ]; then \
+		echo "Opening chrome://extensions..."; \
+		$(OPEN_CHROME) "chrome://extensions" 2>/dev/null & \
+	else \
+		echo "Chrome not found. Open chrome://extensions manually."; \
+	fi
 
 # ── Firefox ───────────────────────────────────────────────────────────────────
 
