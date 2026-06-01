@@ -201,6 +201,8 @@ body.has-bg-image {
 }
 
 .dateline {
+  font-size: 1.2rem;
+  color: var(--text-primary);
   margin-top: var(--space-md);
 }
 
@@ -414,7 +416,7 @@ body.has-bg-image {
 .grid {
   padding-top: var(--space-2xl);
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 320px 1fr;
   gap: var(--space-2xl);
   opacity: 0;
   animation: fadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) 0.18s forwards;
