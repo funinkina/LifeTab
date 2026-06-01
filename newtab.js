@@ -50,6 +50,49 @@ const storage = {
   }
 };
 
+const weatherCache = {
+  STALE_MS: 30 * 60 * 1000,
+  load() {
+    return new Promise(resolve => {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        chrome.storage.local.get('weatherCache', d => resolve(d.weatherCache || null));
+      } else {
+        try { resolve(JSON.parse(localStorage.getItem('weatherCache') || 'null')); }
+        catch { resolve(null); }
+      }
+    });
+  },
+  save(data) {
+    const entry = { data, ts: Date.now() };
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      chrome.storage.local.set({ weatherCache: entry });
+    } else {
+      try { localStorage.setItem('weatherCache', JSON.stringify(entry)); } catch { }
+    }
+  },
+};
+
+const faviconCache = {
+  STALE_MS: 24 * 60 * 60 * 1000,
+  load() {
+    return new Promise(resolve => {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        chrome.storage.local.get('faviconCache', d => resolve(d.faviconCache || {}));
+      } else {
+        try { resolve(JSON.parse(localStorage.getItem('faviconCache') || '{}')); }
+        catch { resolve({}); }
+      }
+    });
+  },
+  save(map) {
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      chrome.storage.local.set({ faviconCache: map });
+    } else {
+      try { localStorage.setItem('faviconCache', JSON.stringify(map)); } catch { }
+    }
+  },
+};
+
 /* ── Accent presets ──────────────────────────────── */
 const ACCENT_PRESETS = [
   { label: 'Red', value: '#D71921' },
@@ -103,10 +146,10 @@ const SEARCH_ENGINES = [
 /* ── Search suggestions ──────────────────────────── */
 const SUGGESTION_APIS = {
   google: q => `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}`,
-  ddg:    q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
-  kagi:   q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
-  brave:  q => `https://search.brave.com/api/suggest?q=${encodeURIComponent(q)}`,
-  bing:   q => `https://api.bing.com/osjson.aspx?query=${encodeURIComponent(q)}`,
+  ddg: q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
+  kagi: q => `https://duckduckgo.com/ac/?q=${encodeURIComponent(q)}&type=list`,
+  brave: q => `https://search.brave.com/api/suggest?q=${encodeURIComponent(q)}`,
+  bing: q => `https://api.bing.com/osjson.aspx?query=${encodeURIComponent(q)}`,
 };
 
 let _suggTimer = null;
@@ -192,9 +235,16 @@ function tick() {
 
 
 /* ── Quick links ─────────────────────────────────── */
-function renderLinks() {
+async function renderLinks() {
   const linksGrid = document.getElementById('links-grid');
   linksGrid.innerHTML = '';
+
+  const cache = await faviconCache.load();
+  const now = Date.now();
+  let cacheUpdated = false;
+
+  const imgEls = {};
+
   CONFIG.LINKS.forEach(({ label, url }, i) => {
     let domain = '';
     try { domain = new URL(url).hostname; } catch { }
@@ -208,10 +258,16 @@ function renderLinks() {
     idx.textContent = pad(i + 1);
 
     const img = document.createElement('img');
-    img.src = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
     img.className = 'link-favicon';
     img.alt = '';
-    img.onerror = () => img.style.display = 'none';
+
+    const entry = cache[domain];
+    if (entry?.src) {
+      img.src = entry.src;
+      img.onerror = () => img.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+    }
 
     const lbl = document.createElement('span');
     lbl.className = 'link-name';
@@ -223,7 +279,31 @@ function renderLinks() {
 
     a.append(idx, img, lbl, arrow);
     linksGrid.appendChild(a);
+
+    if (domain && (!entry || now - entry.ts > faviconCache.STALE_MS)) {
+      imgEls[domain] = img;
+    }
   });
+
+  // Refresh stale/missing favicons in background
+  if (Object.keys(imgEls).length) {
+    for (const [domain, img] of Object.entries(imgEls)) {
+      const src = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+      const tmp = new Image();
+      tmp.onload = () => {
+        img.src = src;
+        img.style.display = '';
+        cache[domain] = { src, ts: Date.now() };
+        cacheUpdated = true;
+        faviconCache.save(cache);
+      };
+      tmp.onerror = () => {
+        cache[domain] = { src: null, ts: Date.now() };
+        faviconCache.save(cache);
+      };
+      tmp.src = src;
+    }
+  }
 }
 
 
@@ -306,9 +386,16 @@ async function loadWeather() {
   if (!key) {
     renderWeatherMsg(
       `Add a free API key from <a href="https://openweathermap.org/api" target="_blank">openweathermap.org</a>
-       via <code style="cursor:pointer;text-decoration:underline" onclick="openSettings()">Settings</code>.`
+      via <code style="cursor:pointer;text-decoration:underline" onclick="openSettings()">Settings</code>.`
     );
     return;
+  }
+
+  // Show cached data instantly while fetching fresh data in background
+  const cached = await weatherCache.load();
+  if (cached) {
+    renderWeather(cached.data);
+    if (Date.now() - cached.ts < weatherCache.STALE_MS) return;
   }
 
   const base = `https://api.openweathermap.org/data/2.5/weather`;
@@ -318,18 +405,21 @@ async function loadWeather() {
     let data;
     if (CONFIG.WEATHER_LOCATION === 'auto') {
       const pos = await new Promise((ok, fail) =>
-        navigator.geolocation.getCurrentPosition(ok, fail, { timeout: 7000 })
+        navigator.geolocation.getCurrentPosition(ok, fail, { timeout: 3000 })
       );
       data = await fetchWeather(`${base}?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}${qs}`);
     } else {
       data = await fetchWeather(`${base}?q=${encodeURIComponent(CONFIG.WEATHER_LOCATION)}${qs}`);
     }
+    weatherCache.save(data);
     renderWeather(data);
   } catch (err) {
-    if (err.code === 1) {
-      renderWeatherMsg(`Location access denied. Set a city in <code style="cursor:pointer;text-decoration:underline" onclick="openSettings()">Settings</code>.`);
-    } else {
-      renderWeatherMsg(`Couldn't load weather. Check API key and connection.`);
+    if (!cached) {
+      if (err.code === 1) {
+        renderWeatherMsg(`Location access denied. Set a city in <code style="cursor:pointer;text-decoration:underline" onclick="openSettings()">Settings</code>.`);
+      } else {
+        renderWeatherMsg(`Couldn't load weather. Check API key and connection.`);
+      }
     }
   }
 }
@@ -377,20 +467,11 @@ function applyBackground(src, brightness, blur) {
 /* ── Theme ───────────────────────────────────────── */
 const THEME_ICONS = { system: '', light: '', dark: '' };
 
-async function loadIcons() {
-  const load = async name => {
-    try {
-      const res = await fetch(`icons/${name}.svg`);
-      return res.ok ? await res.text() : '';
-    } catch { return ''; }
-  };
-  const [settings, system, light, dark] = await Promise.all([
-    load('settings'), load('theme-system'), load('theme-light'), load('theme-dark'),
-  ]);
-  if (settings) document.getElementById('settings-btn').innerHTML = settings;
-  if (system) THEME_ICONS.system = system;
-  if (light)  THEME_ICONS.light  = light;
-  if (dark)   THEME_ICONS.dark   = dark;
+function loadIcons() {
+  const get = id => document.getElementById(id)?.content?.firstElementChild?.outerHTML || '';
+  THEME_ICONS.system = get('icon-theme-system');
+  THEME_ICONS.light = get('icon-theme-light');
+  THEME_ICONS.dark = get('icon-theme-dark');
 }
 
 const THEME_CYCLE = ['system', 'light', 'dark'];
@@ -933,7 +1014,24 @@ function initFidget() {
 
 /* ── Init ────────────────────────────────────────── */
 async function init() {
-  const saved = await storage.load();
+  // Render immediately with defaults — no waiting for storage
+  loadIcons();
+  applyTheme('system');
+  tick();
+  let clockInterval = setInterval(tick, 1000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(clockInterval);
+    } else {
+      tick();
+      clockInterval = setInterval(tick, 1000);
+    }
+  });
+
+  // Fetch both storage backends in parallel
+  const [saved, imgData] = await Promise.all([storage.load(), bgImageStorage.load()]);
+
   if (saved.name !== undefined) CONFIG.NAME = saved.name;
   if (saved.font !== undefined) CONFIG.FONT = saved.font;
   if (saved.accentColor !== undefined) CONFIG.ACCENT_COLOR = saved.accentColor;
@@ -950,35 +1048,28 @@ async function init() {
   if (saved.bgBlur !== undefined) CONFIG.BG_BLUR = saved.bgBlur;
   if (saved.pixelGrid !== undefined) CONFIG.PIXEL_GRID = saved.pixelGrid;
 
-  await loadIcons();
   applyFont(CONFIG.FONT);
   applyAccent(CONFIG.ACCENT_COLOR);
 
   if (CONFIG.BG_SOURCE === 'url' && CONFIG.BG_IMAGE_URL) {
     applyBackground(CONFIG.BG_IMAGE_URL, CONFIG.BG_BRIGHTNESS, CONFIG.BG_BLUR);
-  } else if (CONFIG.BG_SOURCE === 'file') {
-    const imgData = await bgImageStorage.load();
-    if (imgData) applyBackground(imgData, CONFIG.BG_BRIGHTNESS, CONFIG.BG_BLUR);
+  } else if (CONFIG.BG_SOURCE === 'file' && imgData) {
+    applyBackground(imgData, CONFIG.BG_BRIGHTNESS, CONFIG.BG_BLUR);
   }
-  tick();
-  let clockInterval = setInterval(tick, 1000);
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      clearInterval(clockInterval);
-    } else {
-      tick();
-      clockInterval = setInterval(tick, 1000);
-    }
-  });
+  // Re-render clock now that CONFIG.NAME is set
+  tick();
+
   renderLinks();
   loadWeather();
   initTheme();
-  initSettings();
   initSearch();
   initKeyboardShortcuts();
+
+  requestIdleCallback(() => initSettings(), { timeout: 1000 });
+
   if (CONFIG.PIXEL_GRID) {
-    initFidget();
+    requestIdleCallback(() => initFidget(), { timeout: 500 });
   } else {
     const fidget = document.getElementById('fidget');
     if (fidget) fidget.style.display = 'none';

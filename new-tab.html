@@ -4,21 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Life Tab</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500;700&display=swap"
-      rel="stylesheet">
+    <link rel="preload" href="fonts/inter-latin.woff2" as="font"
+      type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/jetbrains-mono-latin.woff2" as="font"
+      type="font/woff2" crossorigin>
     <link rel="stylesheet" href="newtab.css">
   </head>
   <body>
 
     <div id="bg-layer"></div>
-
-    <!-- ── Top bar (tertiary) ─────────────────────────── -->
-    <div class="topbar">
-      <span class="label">NEW&nbsp;TAB</span>
-    </div>
 
     <!-- ── Clock (primary) + fidget grid ──────────────── -->
     <div class="clock-row">
@@ -68,10 +62,132 @@
 
     <!-- Settings button (bottom-left, fixed) -->
     <button class="settings-btn" id="settings-btn"
-      aria-label="Open settings"></button>
+      aria-label="Open settings"><svg width="32" height="32" viewBox="0 0 32 32"
+        fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clip-path="url(#clip0_1128_11575)">
+          <path
+            d="M29.7151 14.48V17.53H28.1951V19.05H31.2351V12.95H28.1951V14.48H29.7151Z"
+            fill="currentcolor" />
+          <path d="M28.195 23.62H26.665V25.14H28.195V23.62Z"
+            fill="currentcolor" />
+          <path d="M28.195 19.05H26.665V22.1H28.195V19.05Z"
+            fill="currentcolor" />
+          <path d="M28.195 9.90999H26.665V12.95H28.195V9.90999Z"
+            fill="currentcolor" />
+          <path d="M28.195 6.86H26.665V8.38H28.195V6.86Z" fill="currentcolor" />
+          <path d="M26.665 25.14H25.145V26.67H26.665V25.14Z"
+            fill="currentcolor" />
+          <path d="M26.665 22.1H25.145V23.62H26.665V22.1Z"
+            fill="currentcolor" />
+          <path d="M26.665 8.37999H25.145V9.90999H26.665V8.37999Z"
+            fill="currentcolor" />
+          <path d="M26.665 5.34H25.145V6.86H26.665V5.34Z" fill="currentcolor" />
+          <path d="M25.145 26.67H23.615V28.19H25.145V26.67Z"
+            fill="currentcolor" />
+          <path d="M25.145 12.95H23.615V19.05H25.145V12.95Z"
+            fill="currentcolor" />
+          <path d="M25.145 3.81H23.615V5.34H25.145V3.81Z" fill="currentcolor" />
+          <path d="M23.615 25.14H22.095V26.67H23.615V25.14Z"
+            fill="currentcolor" />
+          <path d="M23.615 19.05H22.095V22.1H23.615V19.05Z"
+            fill="currentcolor" />
+          <path d="M23.615 9.90999H22.095V12.95H23.615V9.90999Z"
+            fill="currentcolor" />
+          <path d="M23.615 5.34H22.095V6.86H23.615V5.34Z" fill="currentcolor" />
+          <path d="M22.095 26.67H19.045V28.19H22.095V26.67Z"
+            fill="currentcolor" />
+          <path d="M22.095 22.1H19.045V23.62H22.095V22.1Z"
+            fill="currentcolor" />
+          <path d="M22.095 8.37999H19.045V9.90999H22.095V8.37999Z"
+            fill="currentcolor" />
+          <path d="M22.095 3.81H19.045V5.34H22.095V3.81Z" fill="currentcolor" />
+          <path
+            d="M17.525 29.72H14.475V28.19H12.955V31.24H19.045V28.19H17.525V29.72Z"
+            fill="currentcolor" />
+          <path d="M19.045 23.62H12.955V25.14H19.045V23.62Z"
+            fill="currentcolor" />
+          <path
+            d="M14.475 19.05H17.525V17.53H19.045V14.48H17.525V12.95H14.475V14.48H12.955V17.53H14.475V19.05Z"
+            fill="currentcolor" />
+          <path d="M19.045 6.86H12.955V8.38H19.045V6.86Z" fill="currentcolor" />
+          <path
+            d="M14.475 2.28999H17.525V3.80999H19.045V0.759995H12.955V3.80999H14.475V2.28999Z"
+            fill="currentcolor" />
+          <path d="M12.955 26.67H9.90503V28.19H12.955V26.67Z"
+            fill="currentcolor" />
+          <path d="M12.955 22.1H9.90503V23.62H12.955V22.1Z"
+            fill="currentcolor" />
+          <path d="M12.955 8.37999H9.90503V9.90999H12.955V8.37999Z"
+            fill="currentcolor" />
+          <path d="M12.955 3.81H9.90503V5.34H12.955V3.81Z"
+            fill="currentcolor" />
+          <path d="M9.90501 25.14H8.38501V26.67H9.90501V25.14Z"
+            fill="currentcolor" />
+          <path d="M9.90501 19.05H8.38501V22.1H9.90501V19.05Z"
+            fill="currentcolor" />
+          <path d="M9.90501 9.90999H8.38501V12.95H9.90501V9.90999Z"
+            fill="currentcolor" />
+          <path d="M9.90501 5.34H8.38501V6.86H9.90501V5.34Z"
+            fill="currentcolor" />
+          <path d="M8.38498 26.67H6.85498V28.19H8.38498V26.67Z"
+            fill="currentcolor" />
+          <path d="M8.38498 12.95H6.85498V19.05H8.38498V12.95Z"
+            fill="currentcolor" />
+          <path d="M8.38498 3.81H6.85498V5.34H8.38498V3.81Z"
+            fill="currentcolor" />
+          <path d="M6.85496 25.14H5.33496V26.67H6.85496V25.14Z"
+            fill="currentcolor" />
+          <path d="M6.85496 22.1H5.33496V23.62H6.85496V22.1Z"
+            fill="currentcolor" />
+          <path d="M6.85496 8.37999H5.33496V9.90999H6.85496V8.37999Z"
+            fill="currentcolor" />
+          <path d="M6.85496 5.34H5.33496V6.86H6.85496V5.34Z"
+            fill="currentcolor" />
+          <path d="M5.33506 23.62H3.81506V25.14H5.33506V23.62Z"
+            fill="currentcolor" />
+          <path d="M5.33506 19.05H3.81506V22.1H5.33506V19.05Z"
+            fill="currentcolor" />
+          <path d="M5.33506 9.90999H3.81506V12.95H5.33506V9.90999Z"
+            fill="currentcolor" />
+          <path d="M5.33506 6.86H3.81506V8.38H5.33506V6.86Z"
+            fill="currentcolor" />
+          <path
+            d="M3.81501 17.53H2.28501V14.48H3.81501V12.95H0.765015V19.05H3.81501V17.53Z"
+            fill="currentcolor" />
+        </g>
+        <defs><clippath id="clip0_1128_11575"><rect width="32" height="32"
+              fill="white" /></clippath></defs>
+      </svg></button>
 
     <!-- Theme toggle button (bottom-left, fixed, next to settings) -->
     <button class="theme-btn" id="theme-btn" aria-label="Toggle theme"></button>
+
+    <!-- Inlined theme icon templates (eliminates fetch on init) -->
+    <template id="icon-theme-system"><svg width="24" height="24"
+        viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path
+          d="M3 14V5H4V4H20V5H21V14H19V6H5V14H3Z" fill="currentcolor" /><path
+          d="M1 15V18H2V19H3V20H21V19H22V18H23V15H1ZM3 18V17H21V18H3Z"
+          fill="currentcolor" /></svg></template>
+    <template id="icon-theme-light"><svg width="24" height="24"
+        viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path
+          d="M4 5H3V4H4V3H5V4H6V5H7V6H8V7H7V8H6V7H5V6H4V5Z"
+          fill="currentcolor" /><path d="M6 11H1V13H6V11Z"
+          fill="currentcolor" /><path
+          d="M7 17H8V18H7V19H6V20H5V21H4V20H3V19H4V18H5V17H6V16H7V17Z"
+          fill="currentcolor" /><path d="M13 18H11V23H13V18Z"
+          fill="currentcolor" /><path d="M13 1H11V6H13V1Z"
+          fill="currentcolor" /><path d="M23 11H18V13H23V11Z"
+          fill="currentcolor" /><path
+          d="M17 7H16V6H17V5H18V4H19V3H20V4H21V5H20V6H19V7H18V8H17V7Z"
+          fill="currentcolor" /><path
+          d="M21 19V20H20V21H19V20H18V19H17V18H16V17H17V16H18V17H19V18H20V19H21Z"
+          fill="currentcolor" /><path
+          d="M16 14H17V10H16V8H14V7H10V8H8V10H7V14H8V16H10V17H14V16H16V14ZM15 14H14V15H10V14H9V10H10V9H14V10H15V14Z"
+          fill="currentcolor" /></svg></template>
+    <template id="icon-theme-dark"><svg width="24" height="24"
+        viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path
+          d="M21 17V18H19V19H15V18H13V17H11V16H10V14H9V12H8V8H9V6H10V4H11V3H13V2H15V1H10V2H8V3H6V4H5V5H4V7H3V9H2V15H3V17H4V19H5V20H6V21H8V22H10V23H16V22H18V21H20V20H21V19H22V17H21ZM8 20V19H6V17H5V15H4V9H5V7H6V5H8V6H7V8H6V12H7V14H8V16H9V17H10V18H11V19H13V20H15V21H10V20H8Z"
+          fill="currentcolor" /></svg></template>
 
     <!-- Keyboard shortcuts hint (bottom-right, fixed) -->
     <div class="kb-hints" aria-hidden="true">
