@@ -574,7 +574,7 @@ body.has-bg-image {
 }
 
 .kb-hint {
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -585,7 +585,7 @@ body.has-bg-image {
 }
 
 kbd {
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 10px;
   border: 1px solid var(--border-visible);
   padding: 1px 5px;
