@@ -2,7 +2,9 @@
 
 A minimal, highly customizable new tab page for Chrome. Live clock, weather, multi-engine search with suggestions, quick links, and an interactive pixel grid — all in vanilla HTML/CSS/JS with no dependencies.
 
----
+## Screenshot
+<img width="2880" height="1663" alt="Screenshot From 2026-06-01 13-00-55" src="https://github.com/user-attachments/assets/d9fa4774-2966-4165-adca-d6be15da1db9" />
+
 
 ## Features
 
